@@ -109,8 +109,8 @@ body{
   border-radius:12px;
   padding:18px;
   position:sticky;
-  top:88px;
-  max-height:calc(100vh - 108px);
+  top:70px;
+  max-height:calc(100vh - 90px);
   overflow-y:auto;
 }
 @media (max-width:900px){
@@ -190,6 +190,45 @@ input[type=month]{
 .cloud-status.warn{ background:#FFF4E0; color:#8A5A00; border:1px solid #F0D08A; }
 .cloud-status.ok{ background:#E3F5E8; color:#1F6B33; border:1px solid #A9DCB8; }
 .cloud-status.error{ background:#FDE7E5; color:#A32B22; border:1px solid #F0AFA8; }
+.advanced-toggle-btn{
+  background:none;
+  border:1px dashed var(--line);
+  color:var(--muted);
+  border-radius:7px;
+  padding:6px 10px;
+  font-size:11.5px;
+  cursor:pointer;
+  width:100%;
+  text-align:left;
+  margin-bottom:8px;
+}
+.advanced-toggle-btn:hover{
+  border-color:var(--orange);
+  color:var(--orange-dark);
+}
+.cloud-config-fields{
+  margin-bottom:8px;
+}
+.action-btn-group{
+  background:#FFF8EE;
+  border:1px solid var(--orange-tint);
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:18px;
+}
+.confirm-check-label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:500;
+  color:var(--muted);
+  margin:8px 0;
+}
+body.dark .action-btn-group{
+  background:#2A2521;
+  border-color:#4A4238;
+}
 .cycle-row{
   display:grid;
   grid-template-columns:1.3fr 0.7fr;
@@ -437,7 +476,7 @@ input[type=month]{
 .week-header .cell:first-child{background:transparent;}
 .calendar-sticky-head{
   position:sticky;
-  top:88px;
+  top:70px;
   z-index:20;
   background:var(--paper);
   padding-top:4px;
@@ -785,6 +824,20 @@ body.dark .calendar-title{color:#FF9E5E;}
 body.dark .add-btn{background:#332C25;border-color:#5A4A32;color:#F0C98A;}
 body.dark .staff-card{border-color:#3A352E;}
 body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7AC9C;}
+body.dark .secondary-btn{background:#332C25;color:#FF9E5E;border-color:#FF8A3D;}
+body.dark .cloud-status.warn{background:#3A2E14;color:#F0C98A;border-color:#5A4A24;}
+body.dark .cloud-status.ok{background:#16321F;color:#7FD79A;border-color:#2A5C3B;}
+body.dark .cloud-status.error{background:#3A1613;color:#F0938A;border-color:#5C2A24;}
+body.dark .advanced-toggle-btn{color:#B7AC9C;border-color:#4A4238;}
+body.dark .advanced-toggle-btn:hover{border-color:#FF8A3D;color:#FF9E5E;}
+body.dark .highlight-row{color:#B7AC9C;}
+body.dark .countdown-bar{background:#4A4030;}
+body.dark .countdown-fill{background:linear-gradient(90deg, #FF9671, #C94800);}
+body.dark .saved-del-btn{background:#2A2521;border-color:#4A4238;color:#E08D86;}
+body.dark .saved-del-btn:hover{background:#3A1613;border-color:#5C2A24;}
+body.dark .cloud-config-fields .hint{color:#B7AC9C;}
+body.dark .rules-collapsible h2{color:#FF9E5E;}
+body.dark h2{color:#FF9E5E;}
 </style>
 </head>
 <body>
@@ -808,15 +861,27 @@ body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7
     </div>
 
     <h2>Thiết lập</h2>
-
-    <label>Lưu trữ chung (Supabase)</label>
-    <div class="hint">App tự lấy cấu hình từ biến môi trường trên Vercel (không lộ trong code). Chỉ điền tay ở đây nếu muốn ghi đè tạm thời cho trình duyệt này.</div>
-    <input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co">
-    <input type="text" id="supabaseKey" placeholder="Anon public key" style="margin-top:6px;">
-    <div id="cloudStatus" class="cloud-status"></div>
-
     <label for="monthInput">Tháng xếp lịch</label>
     <input type="month" id="monthInput">
+
+    <div class="action-btn-group">
+      <button class="primary-btn" id="generateBtn">Tạo lịch</button>
+      <button class="secondary-btn" id="reshuffleBtn">Xếp lại (đổi ưu tiên)</button>
+      <label class="confirm-check-label">
+        <input type="checkbox" id="confirmBeforeSave" checked>
+        Yêu cầu xác nhận trước khi lưu
+      </label>
+      <button class="save-btn" id="saveMonthBtn">💾 Lưu lịch</button>
+    </div>
+
+    <label>Lưu trữ chung (Supabase)</label>
+    <div id="cloudStatus" class="cloud-status"></div>
+    <button type="button" id="cloudAdvancedToggle" class="advanced-toggle-btn">⚙ Ghi đè thủ công (nâng cao)</button>
+    <div id="cloudConfigFields" class="cloud-config-fields" hidden>
+      <div class="hint">Chỉ dùng nếu muốn trỏ trình duyệt này sang 1 project Supabase khác. Bình thường không cần đụng vào mục này.</div>
+      <input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co">
+      <input type="password" id="supabaseKey" placeholder="Anon public key" style="margin-top:6px;">
+    </div>
 
     <label>Chu kỳ Quá Hạn</label>
     <div class="cycle-row">
@@ -836,18 +901,6 @@ body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7
     <div class="hint">Nhập ngày nghỉ dạng số, cách nhau bằng dấu phẩy. Ví dụ: 5, 12, 20. Bỏ tick vai trò nào thì người đó không được xếp vào vai trò đó.</div>
     <div id="staffContainer"></div>
     <button class="add-btn" id="addStaffBtn">+ Thêm người</button>
-
-    <button class="primary-btn" id="generateBtn">Tạo lịch</button>
-    <button class="secondary-btn" id="reshuffleBtn">Xếp lại (đổi ưu tiên)</button>
-
-    <label style="margin-top:14px;">
-      <input type="checkbox" id="confirmBeforeSave" checked style="margin-right:6px;">
-      Yêu cầu xác nhận trước khi lưu
-    </label>
-    <button class="save-btn" id="saveMonthBtn">💾 Lưu lịch tháng này</button>
-
-    <h2 style="margin-top:18px;">Lịch đã lưu</h2>
-    <div id="savedMonthsList"></div>
   </div>
 
   <div>
@@ -1599,6 +1652,7 @@ function renderCalendar(state){
   savedPlaceholder.value = '';
   savedPlaceholder.textContent = '-- Chọn tháng --';
   savedSelect.appendChild(savedPlaceholder);
+  const currentMonthKey = year + '-' + String(monthIndex + 1).padStart(2, '0');
   Object.keys(historyByMonth)
     .filter(k => historyByMonth[k] && historyByMonth[k].assignments)
     .sort().reverse()
@@ -1606,6 +1660,7 @@ function renderCalendar(state){
       const opt = document.createElement('option');
       opt.value = k;
       opt.textContent = k;
+      if(k === currentMonthKey) opt.selected = true;
       savedSelect.appendChild(opt);
     });
   savedSelect.addEventListener('change', () => {
@@ -2004,6 +2059,7 @@ function confirmAndSaveMonth(){
 
 function renderSavedMonthsList(){
   const container = document.getElementById('savedMonthsList');
+  if(!container) return;
   container.innerHTML = '';
   const keys = Object.keys(historyByMonth).filter(k => historyByMonth[k] && historyByMonth[k].assignments).sort().reverse();
   if(keys.length === 0){
@@ -2201,9 +2257,10 @@ async function bootstrapCloudConfig(){
 }
 
 function initCloudConfigInputs(){
-  const cfg = getCloudConfig();
-  document.getElementById('supabaseUrl').value = cfg.url || '';
-  document.getElementById('supabaseKey').value = cfg.key || '';
+  document.getElementById('cloudAdvancedToggle').addEventListener('click', () => {
+    const fields = document.getElementById('cloudConfigFields');
+    fields.hidden = !fields.hidden;
+  });
 }
 
 async function onCloudConfigChange(){
