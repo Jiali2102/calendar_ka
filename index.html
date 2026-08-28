@@ -436,7 +436,7 @@ body.dark .action-btn-group{
 }
 .week-header{
   display:grid;
-  grid-template-columns:110px repeat(7, 1fr);
+  grid-template-columns:82px repeat(7, 1fr);
 }
 .week-header .cell{
   padding:7px 4px;
@@ -479,13 +479,17 @@ body.dark .calendar-sticky-head{
 }
 .calendar-header-row{
   display:grid;
-  grid-template-columns:110px repeat(7, 1fr);
+  grid-template-columns:82px repeat(7, 1fr);
   border-radius:10px;
   overflow:hidden;
   margin-bottom:12px;
   box-shadow:0 3px 8px rgba(0,0,0,0.1);
 }
 .stats-tab-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   background:var(--season-dark);
   color:#fff;
   border:none;
@@ -500,10 +504,12 @@ body.dark .calendar-sticky-head{
   .stats-tab-btn{ animation:none; }
 }
 .calendar-header-row .cell{
-  padding:8px 4px;
-  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 4px;
+  font-size:13.5px;
   font-weight:700;
-  text-align:center;
   text-transform:uppercase;
   letter-spacing:0.4px;
   color:#fff;
@@ -572,7 +578,7 @@ body.dark .calendar-sticky-head{
 }
 .date-row, .role-row{
   display:grid;
-  grid-template-columns:110px repeat(7, 1fr);
+  grid-template-columns:82px repeat(7, 1fr);
   border-top:1px solid var(--line);
 }
 .date-row .cell{
@@ -637,6 +643,10 @@ body.dark .calendar-sticky-head{
   color:#fff;
   font-weight:900;
   text-shadow:0 1px 2px rgba(0,0,0,0.25);
+}
+.cell.observance{
+  color:#C4131E;
+  font-weight:800;
 }
 .week-a .date-row .cell.holiday, .week-b .date-row .cell.holiday{
   background:linear-gradient(150deg, #C4131E 0%, #8E0000 100%) !important;
@@ -1069,67 +1079,257 @@ function syncHistory(state){
   saveHistory();
 }
 
-const HOLIDAYS = [
-  {year:2026, month:1, day:1, note:'Tết dương lịch'},
-  {year:2026, month:2, day:16, note:'Tết nguyên đán'},
-  {year:2026, month:2, day:17, note:'Tết nguyên đán'},
-  {year:2026, month:2, day:18, note:'Tết nguyên đán'},
-  {year:2026, month:2, day:19, note:'Tết nguyên đán'},
-  {year:2026, month:2, day:20, note:'Tết nguyên đán'},
-  {year:2026, month:2, day:21, note:'Tết nguyên đán'},
-  {year:2026, month:4, day:26, note:'Giỗ tổ Hùng Vương'},
-  {year:2026, month:4, day:30, note:'Giải phóng miền nam Việt Nam'},
-  {year:2026, month:5, day:1, note:'Quốc tế lao động'},
-  {year:2026, month:9, day:1, note:'Quốc Khánh'},
-  {year:2026, month:9, day:2, note:'Quốc Khánh'},
-  {year:2026, month:11, day:24, note:'Văn hóa Việt Nam'},
-  {year:2027, month:1, day:1, note:'Tết dương lịch'},
-  {year:2027, month:2, day:5, note:'Tết nguyên đán'},
-  {year:2027, month:2, day:6, note:'Tết nguyên đán'},
-  {year:2027, month:2, day:7, note:'Tết nguyên đán'},
-  {year:2027, month:2, day:8, note:'Tết nguyên đán'},
-  {year:2027, month:2, day:9, note:'Tết nguyên đán'},
-  {year:2027, month:4, day:16, note:'Giỗ tổ Hùng Vương'},
-  {year:2027, month:4, day:30, note:'Giải phóng miền nam Việt Nam'},
-  {year:2027, month:5, day:1, note:'Quốc tế lao động'},
-  {year:2027, month:9, day:2, note:'Quốc Khánh'},
-  {year:2027, month:9, day:3, note:'Quốc Khánh'},
-  {year:2027, month:11, day:24, note:'Văn hóa Việt Nam'},
-  {year:2028, month:1, day:1, note:'Tết dương lịch'},
-  {year:2028, month:1, day:25, note:'Tết nguyên đán'},
-  {year:2028, month:1, day:26, note:'Tết nguyên đán'},
-  {year:2028, month:1, day:27, note:'Tết nguyên đán'},
-  {year:2028, month:1, day:28, note:'Tết nguyên đán'},
-  {year:2028, month:1, day:29, note:'Tết nguyên đán'},
-  {year:2028, month:4, day:4, note:'Giỗ tổ Hùng Vương'},
-  {year:2028, month:4, day:30, note:'Giải phóng miền nam Việt Nam'},
-  {year:2028, month:5, day:1, note:'Quốc tế lao động'},
-  {year:2028, month:9, day:2, note:'Quốc Khánh'},
-  {year:2028, month:9, day:3, note:'Quốc Khánh'},
-  {year:2028, month:11, day:24, note:'Văn hóa Việt Nam'}
-];
+function INT(d){ return Math.floor(d); }
 
-function holidayKey(y, m, d){
-  return y + '-' + m + '-' + d;
+function jdFromDate(dd, mm, yy){
+  const a = INT((14 - mm) / 12);
+  const y = yy + 4800 - a;
+  const m = mm + 12 * a - 3;
+  let jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - INT(y / 100) + INT(y / 400) - 32045;
+  if(jd < 2299161){
+    jd = dd + INT((153 * m + 2) / 5) + 365 * y + INT(y / 4) - 32083;
+  }
+  return jd;
 }
 
-const HOLIDAY_MAP = {};
-HOLIDAYS.forEach(h => { HOLIDAY_MAP[holidayKey(h.year, h.month, h.day)] = h.note; });
+function jdToDate(jd){
+  let a, b, c;
+  if(jd > 2299160){
+    a = jd + 32044;
+    b = INT((4 * a + 3) / 146097);
+    c = a - INT((b * 146097) / 4);
+  } else {
+    b = 0;
+    c = jd + 32082;
+  }
+  const d = INT((4 * c + 3) / 1461);
+  const e = c - INT((1461 * d) / 4);
+  const m = INT((5 * e + 2) / 153);
+  const day = e - INT((153 * m + 2) / 5) + 1;
+  const month = m + 3 - 12 * INT(m / 10);
+  const year = b * 100 + d - 4800 + INT(m / 10);
+  return [day, month, year];
+}
+
+function lunarNewMoon(k){
+  const T = k / 1236.85;
+  const T2 = T * T;
+  const T3 = T2 * T;
+  const dr = Math.PI / 180;
+  let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+  Jd1 = Jd1 + 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+  const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+  const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+  const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+  let C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+  C1 = C1 - 0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(dr * 2 * Mpr);
+  C1 = C1 - 0.0004 * Math.sin(dr * 3 * Mpr);
+  C1 = C1 + 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr));
+  C1 = C1 - 0.0074 * Math.sin(dr * (M - Mpr)) + 0.0004 * Math.sin(dr * (2 * F + M));
+  C1 = C1 - 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr));
+  C1 = C1 + 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+  let deltat;
+  if(T < -11){
+    deltat = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
+  } else {
+    deltat = -0.000278 + 0.000265 * T + 0.000262 * T2;
+  }
+  return Jd1 + C1 - deltat;
+}
+
+function lunarSunLongitudeRaw(jdn){
+  const T = (jdn - 2451545.0) / 36525;
+  const T2 = T * T;
+  const dr = Math.PI / 180;
+  const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+  const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+  let DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+  DL = DL + (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+  let L = L0 + DL;
+  L = L * dr;
+  L = L - Math.PI * 2 * (INT(L / (Math.PI * 2)));
+  return L;
+}
+
+function lunarSunLongitude(dayNumber, timeZone){
+  return INT(lunarSunLongitudeRaw(dayNumber - 0.5 - timeZone / 24) / Math.PI * 6);
+}
+
+function lunarNewMoonDay(k, timeZone){
+  return INT(lunarNewMoon(k) + 0.5 + timeZone / 24);
+}
+
+function lunarMonth11(yy, timeZone){
+  const off = jdFromDate(31, 12, yy) - 2415021.076998695;
+  const k = INT(off / 29.530588853);
+  let nm = lunarNewMoonDay(k, timeZone);
+  const sunLong = lunarSunLongitude(nm, timeZone);
+  if(sunLong >= 9){
+    nm = lunarNewMoonDay(k - 1, timeZone);
+  }
+  return nm;
+}
+
+function lunarLeapMonthOffset(a11, timeZone){
+  const k = INT((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+  let last = 0;
+  let i = 1;
+  let arc = lunarSunLongitude(lunarNewMoonDay(k + i, timeZone), timeZone);
+  do{
+    last = arc;
+    i++;
+    arc = lunarSunLongitude(lunarNewMoonDay(k + i, timeZone), timeZone);
+  } while(arc != last && i < 14);
+  return i - 1;
+}
+
+function convertLunar2Solar(lunarDay, lunarMonth, lunarYear, lunarLeap, timeZone){
+  let a11, b11;
+  if(lunarMonth < 11){
+    a11 = lunarMonth11(lunarYear - 1, timeZone);
+    b11 = lunarMonth11(lunarYear, timeZone);
+  } else {
+    a11 = lunarMonth11(lunarYear, timeZone);
+    b11 = lunarMonth11(lunarYear + 1, timeZone);
+  }
+  const k = INT(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+  let off = lunarMonth - 11;
+  if(off < 0){ off += 12; }
+  if(b11 - a11 > 365){
+    const leapOff = lunarLeapMonthOffset(a11, timeZone);
+    let leapMonth = leapOff - 2;
+    if(leapMonth < 0){ leapMonth += 12; }
+    if(lunarLeap != 0 && lunarMonth != leapMonth){
+      return [0, 0, 0];
+    } else if(lunarLeap != 0 || off >= leapOff){
+      off += 1;
+    }
+  }
+  const monthStart = lunarNewMoonDay(k + off, timeZone);
+  return jdToDate(monthStart + lunarDay - 1);
+}
+
+const VN_TIMEZONE = 7;
+
+const FIXED_SOLAR_HOLIDAYS = [
+  {month:1, day:1, note:'Tết Dương Lịch', isRed:true},
+  {month:2, day:3, note:'Ngày thành lập Đảng Cộng sản Việt Nam', isRed:false},
+  {month:2, day:14, note:'Lễ tình nhân (Valentine)', isRed:false},
+  {month:2, day:27, note:'Ngày Thầy thuốc Việt Nam', isRed:false},
+  {month:3, day:8, note:'Ngày Quốc tế Phụ nữ', isRed:false},
+  {month:3, day:14, note:'Ngày Valentine Trắng', isRed:false},
+  {month:3, day:20, note:'Ngày Quốc tế Hạnh phúc', isRed:false},
+  {month:3, day:26, note:'Ngày thành lập Đoàn TNCS Hồ Chí Minh', isRed:false},
+  {month:4, day:22, note:'Ngày Trái đất', isRed:false},
+  {month:4, day:30, note:'Ngày Giải phóng miền Nam', isRed:true},
+  {month:5, day:1, note:'Quốc tế Lao động', isRed:true},
+  {month:5, day:19, note:'Ngày sinh Chủ tịch Hồ Chí Minh', isRed:false},
+  {month:6, day:1, note:'Ngày Quốc tế Thiếu nhi', isRed:false},
+  {month:6, day:28, note:'Ngày Gia đình Việt Nam', isRed:false},
+  {month:7, day:27, note:'Ngày Thương binh Liệt sĩ', isRed:false},
+  {month:8, day:19, note:'Ngày Cách mạng tháng Tám thành công', isRed:false},
+  {month:9, day:1, note:'Ngày Quốc Khánh', isRed:true},
+  {month:9, day:2, note:'Ngày Quốc Khánh', isRed:true},
+  {month:9, day:7, note:'Ngày thành lập Đài Truyền hình Việt Nam', isRed:false},
+  {month:10, day:13, note:'Ngày Doanh nhân Việt Nam', isRed:false},
+  {month:10, day:14, note:'Ngày thành lập Hội Nông dân Việt Nam', isRed:false},
+  {month:10, day:20, note:'Ngày thành lập Hội Phụ nữ Việt Nam', isRed:false},
+  {month:11, day:20, note:'Ngày Nhà giáo Việt Nam', isRed:false},
+  {month:11, day:24, note:'Ngày Văn hóa Việt Nam', isRed:true},
+  {month:12, day:22, note:'Ngày thành lập Quân đội Nhân dân Việt Nam', isRed:false},
+  {month:12, day:25, note:'Lễ Giáng Sinh', isRed:false}
+];
+
+const LUNAR_HOLIDAY_SPECS = [
+  {m:1, d:15, note:'Tết Nguyên Tiêu', isRed:false},
+  {m:3, d:3, note:'Tết Hàn Thực', isRed:false},
+  {m:3, d:10, note:'Giỗ Tổ Hùng Vương', isRed:true},
+  {m:4, d:15, note:'Lễ Phật Đản', isRed:false},
+  {m:5, d:5, note:'Tết Đoan Ngọ', isRed:false},
+  {m:7, d:7, note:'Lễ Thất Tịch', isRed:false},
+  {m:7, d:15, note:'Lễ Vu Lan', isRed:false},
+  {m:8, d:15, note:'Tết Trung Thu', isRed:false},
+  {m:9, d:9, note:'Tết Trùng Cửu', isRed:false},
+  {m:10, d:10, note:'Tết Trùng Thập', isRed:false},
+  {m:10, d:15, note:'Tết Hạ Nguyên', isRed:false},
+  {m:12, d:23, note:'Ông Táo về trời', isRed:false}
+];
+
+const lunarHolidayCache = {};
+
+function computeLunarHolidaysForLunarYear(lunarYear){
+  if(lunarHolidayCache[lunarYear]) return lunarHolidayCache[lunarYear];
+  const results = [];
+  const tet = convertLunar2Solar(1, 1, lunarYear, 0, VN_TIMEZONE);
+  if(tet[0] !== 0){
+    const tetDate = new Date(Date.UTC(tet[2], tet[1] - 1, tet[0]));
+    const before = new Date(tetDate);
+    before.setUTCDate(before.getUTCDate() - 1);
+    results.push({ year:before.getUTCFullYear(), month:before.getUTCMonth() + 1, day:before.getUTCDate(), note:'Tất niên (29 Tết)', isRed:true });
+    for(let i = 0; i < 4; i++){
+      const dt = new Date(tetDate);
+      dt.setUTCDate(dt.getUTCDate() + i);
+      results.push({ year:dt.getUTCFullYear(), month:dt.getUTCMonth() + 1, day:dt.getUTCDate(), note:'Tết Nguyên Đán (mùng ' + (i + 1) + ')', isRed:true });
+    }
+  }
+  LUNAR_HOLIDAY_SPECS.forEach(spec => {
+    const solar = convertLunar2Solar(spec.d, spec.m, lunarYear, 0, VN_TIMEZONE);
+    if(solar[0] === 0) return;
+    results.push({ year:solar[2], month:solar[1], day:solar[0], note:spec.note, isRed:spec.isRed });
+  });
+  lunarHolidayCache[lunarYear] = results;
+  return results;
+}
+
+const holidayYearCache = {};
+
+function getHolidayEntries(year, month, day){
+  if(!holidayYearCache[year]){
+    const map = {};
+    [year - 1, year, year + 1].forEach(ly => {
+      computeLunarHolidaysForLunarYear(ly).forEach(h => {
+        if(h.year !== year) return;
+        const key = h.month + '-' + h.day;
+        if(!map[key]) map[key] = [];
+        map[key].push({ note:h.note, isRed:h.isRed });
+      });
+    });
+    FIXED_SOLAR_HOLIDAYS.forEach(h => {
+      const key = h.month + '-' + h.day;
+      if(!map[key]) map[key] = [];
+      map[key].push({ note:h.note, isRed:h.isRed });
+    });
+    holidayYearCache[year] = map;
+  }
+  return holidayYearCache[year][month + '-' + day] || null;
+}
+
+function isRedHolidayDay(year, month, day){
+  const entries = getHolidayEntries(year, month, day);
+  return !!(entries && entries.some(e => e.isRed));
+}
 
 function getHolidaysInMonth(year, month){
-  return HOLIDAYS.filter(h => h.year === year && h.month === month).sort((a,b) => a.day - b.day);
+  getHolidayEntries(year, month, 1);
+  const map = holidayYearCache[year] || {};
+  const list = [];
+  Object.keys(map).forEach(key => {
+    const [m, d] = key.split('-').map(Number);
+    if(m === month){
+      map[key].forEach(e => list.push({ day:d, month:m, note:e.note, isRed:e.isRed }));
+    }
+  });
+  return list.sort((a, b) => a.day - b.day);
 }
 
 const ZODIAC_BY_MONTH = ['🐀','🐂','🐅','🐈','🐉','🐍','🐎','🐐','🐒','🐓','🐕','🐖'];
 
 function getLunarYearAdjustment(year, month1based, day){
-  const tetEntries = HOLIDAYS.filter(h => h.year === year && h.note === 'Tết nguyên đán');
-  if(tetEntries.length > 0){
-    const sorted = tetEntries.slice().sort((a, b) => (a.month * 100 + a.day) - (b.month * 100 + b.day));
-    const tet = sorted[0];
+  const tet = convertLunar2Solar(1, 1, year, 0, VN_TIMEZONE);
+  if(tet[0] !== 0){
     const currentVal = month1based * 100 + day;
-    const tetVal = tet.month * 100 + tet.day;
-    if(currentVal < tetVal) return year - 1;
+    const tetVal = tet[1] * 100 + tet[0];
+    if(tet[2] === year && currentVal < tetVal) return year - 1;
   }
   return year;
 }
@@ -1479,7 +1679,7 @@ function runAssignment(){
   const assignments = {};
 
   for(let d=1; d<=daysInMonth; d++){
-    const isHoliday = !!HOLIDAY_MAP[holidayKey(year, monthIndex + 1, d)];
+    const isHoliday = isRedHolidayDay(year, monthIndex + 1, d);
     if(isHoliday){
       assignments[d] = { truc:null, quaHan:null };
       continue;
@@ -1522,7 +1722,6 @@ function runAssignment(){
 }
 
 let lastState = null;
-let statsPanelOpen = false;
 let highlightName = null;
 
 const SEASONS = [
@@ -1721,11 +1920,6 @@ function renderCalendar(state){
   const statsTabBtn = document.createElement('button');
   statsTabBtn.className = 'cell stats-tab-btn';
   statsTabBtn.innerHTML = '📊<br>Xem thống kê';
-  statsTabBtn.addEventListener('click', () => {
-    statsPanelOpen = !statsPanelOpen;
-    const panel = document.getElementById('statsArea');
-    panel.style.display = statsPanelOpen ? 'block' : 'none';
-  });
   headerRow.appendChild(statsTabBtn);
   dowLabels.forEach(lbl => headerRow.appendChild(makeCell(lbl)));
   stickyHead.appendChild(headerRow);
@@ -1774,7 +1968,10 @@ function renderCalendar(state){
   if(monthHolidays.length > 0){
     const legend = document.createElement('div');
     legend.className = 'holiday-legend';
-    const items = monthHolidays.map(h => String(h.day).padStart(2,'0') + '/' + String(h.month).padStart(2,'0') + ' – ' + h.note);
+    const items = monthHolidays.map(h => {
+      const label = String(h.day).padStart(2,'0') + '/' + String(h.month).padStart(2,'0') + ' – ' + h.note;
+      return h.isRed ? '<strong style="color:#C4131E;">' + label + '</strong>' : label;
+    });
     legend.innerHTML = '<strong>Ngày lễ trong tháng:</strong> ' + items.join(' · ');
     scrollBox.appendChild(legend);
   }
@@ -1795,14 +1992,20 @@ function makeDateCell(day, year, monthIndex){
   if(year === today.getFullYear() && monthIndex === today.getMonth() && day.dateNum === today.getDate()){
     c.classList.add('today');
   }
-  const note = HOLIDAY_MAP[holidayKey(year, monthIndex + 1, day.dateNum)];
-  if(note){
-    c.classList.add('holiday');
-    c.title = note;
-    const icon = document.createElement('span');
-    icon.className = 'holiday-icon';
-    icon.textContent = '🧧';
-    c.appendChild(icon);
+  const entries = getHolidayEntries(year, monthIndex + 1, day.dateNum);
+  if(entries && entries.length > 0){
+    const noteText = entries.map(e => e.note).join(', ');
+    const isRed = entries.some(e => e.isRed);
+    c.title = noteText;
+    if(isRed){
+      c.classList.add('holiday');
+      const icon = document.createElement('span');
+      icon.className = 'holiday-icon';
+      icon.textContent = '🧧';
+      c.appendChild(icon);
+    } else {
+      c.classList.add('observance');
+    }
   }
   return c;
 }
@@ -1841,7 +2044,7 @@ function appendNameWithAvatar(tag, name){
 }
 
 function isHolidayDay(state, dateNum){
-  return !!HOLIDAY_MAP[holidayKey(state.year, state.monthIndex + 1, dateNum)];
+  return isRedHolidayDay(state.year, state.monthIndex + 1, dateNum);
 }
 
 function makeAssignCell(day, state, role){
@@ -2024,7 +2227,6 @@ function openEditor(cell, day, state, role){
 function renderStats(state){
   const area = document.getElementById('statsArea');
   area.innerHTML = '';
-  area.style.display = statsPanelOpen ? 'block' : 'none';
 
   const box = document.createElement('div');
   box.className = 'stats';
@@ -2303,6 +2505,27 @@ async function bootstrapCloudConfig(){
     saveCloudConfig(serverCfg.url, serverCfg.key);
   }
 }
+
+let statsHideTimeout = null;
+
+function isWithinStatsHoverZone(el){
+  return !!(el && el.closest && (el.closest('.stats-tab-btn') || el.closest('#statsArea')));
+}
+
+document.addEventListener('mouseover', e => {
+  if(isWithinStatsHoverZone(e.target)){
+    if(statsHideTimeout) clearTimeout(statsHideTimeout);
+    document.getElementById('statsArea').style.display = 'block';
+  }
+});
+
+document.addEventListener('mouseout', e => {
+  if(!isWithinStatsHoverZone(e.target)) return;
+  if(isWithinStatsHoverZone(e.relatedTarget)) return;
+  statsHideTimeout = setTimeout(() => {
+    document.getElementById('statsArea').style.display = 'none';
+  }, 250);
+});
 
 (async () => {
   await bootstrapCloudConfig();
