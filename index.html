@@ -810,7 +810,7 @@ body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7
     <h2>Thiết lập</h2>
 
     <label>Lưu trữ chung (Supabase)</label>
-    <div class="hint">Dán URL và Anon Key từ project Supabase để mọi người dùng chung 1 dữ liệu, xem/sửa được lẫn nhau. Để trống thì chỉ lưu trên trình duyệt này.</div>
+    <div class="hint">App tự lấy cấu hình từ biến môi trường trên Vercel (không lộ trong code). Chỉ điền tay ở đây nếu muốn ghi đè tạm thời cho trình duyệt này.</div>
     <input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co">
     <input type="text" id="supabaseKey" placeholder="Anon public key" style="margin-top:6px;">
     <div id="cloudStatus" class="cloud-status"></div>
@@ -2177,6 +2177,29 @@ async function initApp(){
   refreshLiveViews();
 }
 
+async function fetchServerCloudConfig(){
+  try{
+    const res = await fetch('/api/config');
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(data.supabaseUrl && data.supabaseAnonKey){
+      return { url: data.supabaseUrl, key: data.supabaseAnonKey };
+    }
+    return null;
+  }catch(e){
+    return null;
+  }
+}
+
+async function bootstrapCloudConfig(){
+  const existing = getCloudConfig();
+  if(existing.url && existing.key) return;
+  const serverCfg = await fetchServerCloudConfig();
+  if(serverCfg){
+    saveCloudConfig(serverCfg.url, serverCfg.key);
+  }
+}
+
 function initCloudConfigInputs(){
   const cfg = getCloudConfig();
   document.getElementById('supabaseUrl').value = cfg.url || '';
@@ -2196,8 +2219,11 @@ async function onCloudConfigChange(){
 document.getElementById('supabaseUrl').addEventListener('change', onCloudConfigChange);
 document.getElementById('supabaseKey').addEventListener('change', onCloudConfigChange);
 
-initCloudConfigInputs();
-initApp();
+(async () => {
+  await bootstrapCloudConfig();
+  initCloudConfigInputs();
+  await initApp();
+})();
 </script>
 
 </body>
