@@ -808,6 +808,13 @@ body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7
     </div>
 
     <h2>Thiết lập</h2>
+
+    <label>Lưu trữ chung (Supabase)</label>
+    <div class="hint">App tự lấy cấu hình từ biến môi trường trên Vercel (không lộ trong code). Chỉ điền tay ở đây nếu muốn ghi đè tạm thời cho trình duyệt này.</div>
+    <input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co">
+    <input type="text" id="supabaseKey" placeholder="Anon public key" style="margin-top:6px;">
+    <div id="cloudStatus" class="cloud-status"></div>
+
     <label for="monthInput">Tháng xếp lịch</label>
     <input type="month" id="monthInput">
 
