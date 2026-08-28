@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Xếp lịch trực KAC</title>
+<title>Lịch trực KAC</title>
 <style>
 :root{
   --orange:#FE5F00;
@@ -112,8 +112,8 @@ body{
   border-radius:12px;
   padding:18px;
   position:sticky;
-  top:70px;
-  max-height:calc(100vh - 90px);
+  top:66px;
+  max-height:calc(100vh - 106px);
   overflow-y:auto;
 }
 @media (max-width:900px){
@@ -224,6 +224,13 @@ body.dark .action-btn-group{
   padding-bottom:10px;
   margin-bottom:10px;
 }
+.staff-index{
+  font-size:10px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:3px;
+}
+body.dark .staff-index{color:#8A7F6E;}
 .staff-row{
   display:grid;
   grid-template-columns:22px 1fr 1fr auto;
@@ -301,6 +308,39 @@ body.dark .action-btn-group{
   font-size:13px;
   cursor:pointer;
   margin-bottom:18px;
+}
+.generate-row{
+  display:flex;
+  gap:6px;
+  margin-bottom:8px;
+}
+.generate-row .primary-btn{
+  flex:1;
+  margin-bottom:0;
+}
+.template-btn{
+  flex-shrink:0;
+  padding:0 10px;
+  background:var(--blue-tint);
+  color:var(--blue);
+  border:1px solid var(--blue);
+  border-radius:8px;
+  font-weight:600;
+  font-size:11.5px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.template-btn:hover{
+  background:var(--blue);
+  color:#fff;
+}
+body.dark .template-btn{
+  background:#1F2E38;
+  color:#8FB8E0;
+  border-color:#3A5A78;
+}
+body.dark .template-btn:hover{
+  background:#2A4258;
 }
 .primary-btn{
   width:100%;
@@ -422,17 +462,17 @@ body.dark .action-btn-group{
   line-height:1.4;
 }
 .calendar-title{
-  font-size:18px;
+  font-size:16px;
   font-weight:800;
   color:var(--orange-dark);
-  margin:2px 0 14px;
+  margin:2px 0 8px;
 }
 .week-block{
-  border-radius:16px;
+  border-radius:10px;
   overflow:hidden;
   border:1px solid var(--line);
-  margin-bottom:18px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.06);
+  margin-bottom:5px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.05);
 }
 .week-header{
   display:grid;
@@ -452,10 +492,6 @@ body.dark .action-btn-group{
 .week-header .cell:first-child{background:transparent;}
 .calendar-scroll-box{
   position:relative;
-  max-height:calc(100vh - 190px);
-  overflow-y:auto;
-  border-radius:14px;
-  padding-right:2px;
 }
 .zodiac-watermark{
   position:absolute;
@@ -469,7 +505,7 @@ body.dark .action-btn-group{
 }
 .calendar-sticky-head{
   position:sticky;
-  top:0;
+  top:66px;
   z-index:20;
   background:var(--paper);
   padding-top:4px;
@@ -507,8 +543,8 @@ body.dark .calendar-sticky-head{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:10px 4px;
-  font-size:13.5px;
+  padding:5px 4px;
+  font-size:12.5px;
   font-weight:700;
   text-transform:uppercase;
   letter-spacing:0.4px;
@@ -523,9 +559,9 @@ body.dark .calendar-sticky-head{
   align-items:center;
   justify-content:space-between;
   flex-wrap:wrap;
-  gap:10px;
-  margin:0 0 10px;
-  font-size:13px;
+  gap:8px;
+  margin:0 0 6px;
+  font-size:12px;
   color:var(--muted);
 }
 .highlight-track-group, .saved-dropdown-wrap{
@@ -558,10 +594,10 @@ body.dark .calendar-sticky-head{
   background:#FFF8E1;
   border:1px solid #F0D98A;
   border-radius:8px;
-  padding:10px 14px;
-  font-size:13px;
+  padding:6px 12px;
+  font-size:11.5px;
   color:#6B5200;
-  margin:-4px 0 14px;
+  margin:0 0 6px;
 }
 .countdown-bar{
   margin-top:6px;
@@ -583,8 +619,8 @@ body.dark .calendar-sticky-head{
 }
 .date-row .cell{
   text-align:center;
-  padding:8px 4px 4px;
-  font-size:15px;
+  padding:3px 4px 1px;
+  font-size:12.5px;
   font-weight:700;
   font-variant-numeric:tabular-nums;
 }
@@ -597,9 +633,10 @@ body.dark .calendar-sticky-head{
 }
 .role-row .cell{
   text-align:center;
-  padding:6px 4px;
-  font-size:12.5px;
+  padding:2px 4px;
+  font-size:10.5px;
   border-left:1px solid var(--line);
+  min-height:20px;
 }
 .role-row .cell:first-child{
   text-align:left;
@@ -681,22 +718,22 @@ body.dark .calendar-sticky-head{
 .name-tag{
   display:inline-flex;
   align-items:center;
-  gap:4px;
-  padding:2px 5px 2px 2px;
-  border-radius:12px;
+  gap:3px;
+  padding:1px 4px 1px 1px;
+  border-radius:10px;
   cursor:pointer;
   font-weight:600;
 }
 .name-tag:hover{background:var(--orange-tint);}
 .avatar-badge{
-  width:16px;
-  height:16px;
-  min-width:16px;
+  width:13px;
+  height:13px;
+  min-width:13px;
   border-radius:50%;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  font-size:7.5px;
+  font-size:6.5px;
   font-weight:800;
   color:#fff;
   text-shadow:0 1px 1px rgba(0,0,0,0.25);
@@ -733,11 +770,25 @@ select.edit-select{
   border-radius:5px;
   border:1px solid var(--orange);
 }
+.calendar-column{
+  position:relative;
+}
+#statsArea{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  z-index:40;
+  max-height:82vh;
+  overflow-y:auto;
+  border-radius:14px;
+  box-shadow:0 14px 36px rgba(0,0,0,0.3);
+}
 .stats{
-  margin-top:20px;
+  margin-top:0;
   background:#fff;
   border:1px solid var(--line);
-  border-radius:12px;
+  border-radius:14px;
   padding:16px 18px;
 }
 .stats h3{
@@ -859,7 +910,7 @@ body.dark h2{color:#FF9E5E;}
 <div class="topbar">
   <div class="season-decor" id="seasonDecor"></div>
   <button id="darkModeToggle" class="dark-toggle-btn" title="Chế độ tối">🌙</button>
-  <h1>Xếp lịch Trực KAC</h1>
+  <h1>Lịch trực KAC</h1>
 </div>
 
 <div class="layout">
@@ -879,7 +930,10 @@ body.dark h2{color:#FF9E5E;}
     <input type="month" id="monthInput">
 
     <div class="action-btn-group">
-      <button class="primary-btn" id="generateBtn">Tạo lịch</button>
+      <div class="generate-row">
+        <button class="primary-btn" id="generateBtn">Tạo lịch</button>
+        <button class="template-btn" id="defaultTemplateBtn" title="Đặt lại 9 nhân sự mặc định cho tháng hiện tại">🔄 Mẫu mặc định</button>
+      </div>
       <button class="secondary-btn" id="reshuffleBtn">Xếp lại (đổi ưu tiên)</button>
       <label class="confirm-check-label">
         <input type="checkbox" id="confirmBeforeSave" checked>
@@ -888,7 +942,6 @@ body.dark h2{color:#FF9E5E;}
       <button class="save-btn" id="saveMonthBtn">💾 Lưu lịch</button>
     </div>
 
-    <label>Lưu trữ chung (Supabase)</label>
     <div id="cloudStatus" class="cloud-status"></div>
 
     <label>Chu kỳ Quá Hạn</label>
@@ -911,7 +964,7 @@ body.dark h2{color:#FF9E5E;}
     <button class="add-btn" id="addStaffBtn">+ Thêm người</button>
   </div>
 
-  <div>
+  <div class="calendar-column">
     <div id="calendarArea">
       <div class="empty-state">Nhập nhân sự và bấm "Tạo lịch" để xem kết quả.</div>
     </div>
@@ -1351,7 +1404,7 @@ function newStaffId(){
 }
 
 function defaultStaff(){
-  const names = ['Quỳnh Phạm','Cúc Nguyễn','Ngọc Bích','Thu Thủy', 'Quỳnh Đặng','Hải Mi','Anh Thy','Minh Thư','Gia Linh'];
+  const names = ['Quỳnh Phạm','Thu Thủy','Cúc Nguyễn','Ngọc Bích', 'Quỳnh Đặng','Hải Mi','Anh Thy','Minh Thư','Gia Linh'];
   return names.map(n => ({ id:newStaffId(), name:n, off:'', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true }));
 }
 
@@ -1391,6 +1444,11 @@ function renderStaffRows(){
   staff.forEach((s, idx) => {
     const card = document.createElement('div');
     card.className = 'staff-card';
+
+    const indexLabel = document.createElement('div');
+    indexLabel.className = 'staff-index';
+    indexLabel.textContent = '#' + (idx + 1) + ' / ' + staff.length;
+    card.appendChild(indexLabel);
 
     const row = document.createElement('div');
     row.className = 'staff-row';
@@ -1919,7 +1977,7 @@ function renderCalendar(state){
   headerRow.className = 'calendar-header-row';
   const statsTabBtn = document.createElement('button');
   statsTabBtn.className = 'cell stats-tab-btn';
-  statsTabBtn.innerHTML = '📊<br>Xem thống kê';
+  statsTabBtn.innerHTML = '📊<br>Thống kê';
   headerRow.appendChild(statsTabBtn);
   dowLabels.forEach(lbl => headerRow.appendChild(makeCell(lbl)));
   stickyHead.appendChild(headerRow);
@@ -2263,7 +2321,7 @@ function renderStats(state){
 
   const table = document.createElement('table');
   table.className = 'stats-table';
-  table.innerHTML = '<thead><tr><th>Tên</th><th>Trực Room (ngày thường)</th><th>Trực Room (Chủ nhật)</th><th>Trực Room (ngày lễ)</th><th>Quá Hạn (số tuần)</th><th>Tổng lượt trực</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>Tên</th><th>Trực Room (ngày thường)</th><th>Trực Room (Chủ nhật)</th><th>Trực Room (ngày lễ)</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
   const tbody = document.createElement('tbody');
   state.names.forEach(n => {
     const total = counts[n].truc + counts[n].sun + counts[n].holiday + counts[n].qh;
@@ -2422,6 +2480,18 @@ document.getElementById('addStaffBtn').addEventListener('click', () => {
 });
 
 document.getElementById('generateBtn').addEventListener('click', generate);
+document.getElementById('defaultTemplateBtn').addEventListener('click', () => {
+  const ok = confirm('Đặt lại danh sách nhân sự về 9 người mặc định và chuyển về tháng hiện tại?\n\nDanh sách nhân sự hiện tại sẽ bị thay thế.');
+  if(!ok) return;
+  staff = defaultStaff();
+  renderStaffRows();
+  const now = new Date();
+  document.getElementById('monthInput').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  document.getElementById('cycleStartDow').value = '2';
+  document.getElementById('cycleLength').value = '7';
+  saveState();
+  generate();
+});
 document.getElementById('reshuffleBtn').addEventListener('click', generate);
 document.getElementById('saveMonthBtn').addEventListener('click', confirmAndSaveMonth);
 document.getElementById('monthInput').addEventListener('change', saveState);
