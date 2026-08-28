@@ -23,6 +23,9 @@
   --season-tint-b:var(--blue-tint);
 }
 *{box-sizing:border-box;}
+button, input, select, textarea{
+  font-family:inherit;
+}
 body{
   margin:0;
   font-family:Cambria, Georgia, 'Times New Roman', serif;
@@ -173,14 +176,6 @@ input[type=month]{
   font-size:14px;
   margin-bottom:16px;
 }
-#supabaseUrl, #supabaseKey{
-  width:100%;
-  padding:8px 10px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  font-family:inherit;
-  font-size:12.5px;
-}
 .cloud-status{
   font-size:11.5px;
   padding:7px 10px;
@@ -190,25 +185,6 @@ input[type=month]{
 .cloud-status.warn{ background:#FFF4E0; color:#8A5A00; border:1px solid #F0D08A; }
 .cloud-status.ok{ background:#E3F5E8; color:#1F6B33; border:1px solid #A9DCB8; }
 .cloud-status.error{ background:#FDE7E5; color:#A32B22; border:1px solid #F0AFA8; }
-.advanced-toggle-btn{
-  background:none;
-  border:1px dashed var(--line);
-  color:var(--muted);
-  border-radius:7px;
-  padding:6px 10px;
-  font-size:11.5px;
-  cursor:pointer;
-  width:100%;
-  text-align:left;
-  margin-bottom:8px;
-}
-.advanced-toggle-btn:hover{
-  border-color:var(--orange);
-  color:var(--orange-dark);
-}
-.cloud-config-fields{
-  margin-bottom:8px;
-}
 .action-btn-group{
   background:#FFF8EE;
   border:1px solid var(--orange-tint);
@@ -474,9 +450,26 @@ body.dark .action-btn-group{
 .week-a .week-header .cell{background:var(--season-primary);}
 .week-b .week-header .cell{background:var(--season-dark);}
 .week-header .cell:first-child{background:transparent;}
+.calendar-scroll-box{
+  position:relative;
+  max-height:calc(100vh - 190px);
+  overflow-y:auto;
+  border-radius:14px;
+  padding-right:2px;
+}
+.zodiac-watermark{
+  position:absolute;
+  right:14px;
+  bottom:10px;
+  font-size:170px;
+  line-height:1;
+  opacity:0.05;
+  pointer-events:none;
+  z-index:0;
+}
 .calendar-sticky-head{
   position:sticky;
-  top:70px;
+  top:0;
   z-index:20;
   background:var(--paper);
   padding-top:4px;
@@ -491,6 +484,20 @@ body.dark .calendar-sticky-head{
   overflow:hidden;
   margin-bottom:12px;
   box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+.stats-tab-btn{
+  background:var(--season-dark);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-size:9px;
+  font-weight:700;
+  line-height:1.4;
+  padding:8px 4px;
+  animation:blinkHighlight 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .stats-tab-btn{ animation:none; }
 }
 .calendar-header-row .cell{
   padding:8px 4px;
@@ -828,14 +835,11 @@ body.dark .secondary-btn{background:#332C25;color:#FF9E5E;border-color:#FF8A3D;}
 body.dark .cloud-status.warn{background:#3A2E14;color:#F0C98A;border-color:#5A4A24;}
 body.dark .cloud-status.ok{background:#16321F;color:#7FD79A;border-color:#2A5C3B;}
 body.dark .cloud-status.error{background:#3A1613;color:#F0938A;border-color:#5C2A24;}
-body.dark .advanced-toggle-btn{color:#B7AC9C;border-color:#4A4238;}
-body.dark .advanced-toggle-btn:hover{border-color:#FF8A3D;color:#FF9E5E;}
 body.dark .highlight-row{color:#B7AC9C;}
 body.dark .countdown-bar{background:#4A4030;}
 body.dark .countdown-fill{background:linear-gradient(90deg, #FF9671, #C94800);}
 body.dark .saved-del-btn{background:#2A2521;border-color:#4A4238;color:#E08D86;}
 body.dark .saved-del-btn:hover{background:#3A1613;border-color:#5C2A24;}
-body.dark .cloud-config-fields .hint{color:#B7AC9C;}
 body.dark .rules-collapsible h2{color:#FF9E5E;}
 body.dark h2{color:#FF9E5E;}
 </style>
@@ -876,12 +880,6 @@ body.dark h2{color:#FF9E5E;}
 
     <label>Lưu trữ chung (Supabase)</label>
     <div id="cloudStatus" class="cloud-status"></div>
-    <button type="button" id="cloudAdvancedToggle" class="advanced-toggle-btn">⚙ Ghi đè thủ công (nâng cao)</button>
-    <div id="cloudConfigFields" class="cloud-config-fields" hidden>
-      <div class="hint">Chỉ dùng nếu muốn trỏ trình duyệt này sang 1 project Supabase khác. Bình thường không cần đụng vào mục này.</div>
-      <input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co">
-      <input type="password" id="supabaseKey" placeholder="Anon public key" style="margin-top:6px;">
-    </div>
 
     <label>Chu kỳ Quá Hạn</label>
     <div class="cycle-row">
@@ -907,7 +905,7 @@ body.dark h2{color:#FF9E5E;}
     <div id="calendarArea">
       <div class="empty-state">Nhập nhân sự và bấm "Tạo lịch" để xem kết quả.</div>
     </div>
-    <div id="statsArea"></div>
+    <div id="statsArea" style="display:none;"></div>
   </div>
 </div>
 
@@ -1120,6 +1118,28 @@ HOLIDAYS.forEach(h => { HOLIDAY_MAP[holidayKey(h.year, h.month, h.day)] = h.note
 
 function getHolidaysInMonth(year, month){
   return HOLIDAYS.filter(h => h.year === year && h.month === month).sort((a,b) => a.day - b.day);
+}
+
+const ZODIAC_BY_MONTH = ['🐀','🐂','🐅','🐈','🐉','🐍','🐎','🐐','🐒','🐓','🐕','🐖'];
+
+function getLunarYearAdjustment(year, month1based, day){
+  const tetEntries = HOLIDAYS.filter(h => h.year === year && h.note === 'Tết nguyên đán');
+  if(tetEntries.length > 0){
+    const sorted = tetEntries.slice().sort((a, b) => (a.month * 100 + a.day) - (b.month * 100 + b.day));
+    const tet = sorted[0];
+    const currentVal = month1based * 100 + day;
+    const tetVal = tet.month * 100 + tet.day;
+    if(currentVal < tetVal) return year - 1;
+  }
+  return year;
+}
+
+function getCanChi(lunarYear){
+  const stems = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+  const branches = ['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+  const stemIdx = ((lunarYear - 4) % 10 + 10) % 10;
+  const branchIdx = ((lunarYear - 4) % 12 + 12) % 12;
+  return stems[stemIdx] + ' ' + branches[branchIdx];
 }
 
 let staff = [];
@@ -1502,6 +1522,7 @@ function runAssignment(){
 }
 
 let lastState = null;
+let statsPanelOpen = false;
 let highlightName = null;
 
 const SEASONS = [
@@ -1609,8 +1630,18 @@ function renderCalendar(state){
 
   const title = document.createElement('div');
   title.className = 'calendar-title';
-  title.textContent = 'Lịch trực ' + year + '-' + String(monthIndex + 1).padStart(2, '0') + ' · Mùa ' + season.name + ' ' + season.icon;
+  const lunarYear = getLunarYearAdjustment(year, monthIndex + 1, 1);
+  const canChi = getCanChi(lunarYear);
+  title.textContent = 'Lịch trực ' + year + '-' + String(monthIndex + 1).padStart(2, '0') + ' · Mùa ' + season.name + ' năm ' + canChi + ' ' + season.icon;
   area.appendChild(title);
+
+  const scrollBox = document.createElement('div');
+  scrollBox.className = 'calendar-scroll-box';
+
+  const zodiacWatermark = document.createElement('div');
+  zodiacWatermark.className = 'zodiac-watermark';
+  zodiacWatermark.textContent = ZODIAC_BY_MONTH[monthIndex];
+  scrollBox.appendChild(zodiacWatermark);
 
   const stickyHead = document.createElement('div');
   stickyHead.className = 'calendar-sticky-head';
@@ -1687,11 +1718,19 @@ function renderCalendar(state){
 
   const headerRow = document.createElement('div');
   headerRow.className = 'calendar-header-row';
-  headerRow.appendChild(makeCell(''));
+  const statsTabBtn = document.createElement('button');
+  statsTabBtn.className = 'cell stats-tab-btn';
+  statsTabBtn.innerHTML = '📊<br>Xem thống kê';
+  statsTabBtn.addEventListener('click', () => {
+    statsPanelOpen = !statsPanelOpen;
+    const panel = document.getElementById('statsArea');
+    panel.style.display = statsPanelOpen ? 'block' : 'none';
+  });
+  headerRow.appendChild(statsTabBtn);
   dowLabels.forEach(lbl => headerRow.appendChild(makeCell(lbl)));
   stickyHead.appendChild(headerRow);
 
-  area.appendChild(stickyHead);
+  scrollBox.appendChild(stickyHead);
 
   state.weeks.forEach((week, wIdx) => {
     const block = document.createElement('div');
@@ -1721,14 +1760,14 @@ function renderCalendar(state){
     });
     block.appendChild(qhRow);
 
-    area.appendChild(block);
+    scrollBox.appendChild(block);
   });
 
   if(state.warnings.length > 0){
     const wbox = document.createElement('div');
     wbox.className = 'warning-box';
     wbox.innerHTML = '<strong>Lưu ý:</strong><br>' + state.warnings.join('<br>');
-    area.appendChild(wbox);
+    scrollBox.appendChild(wbox);
   }
 
   const monthHolidays = getHolidaysInMonth(year, monthIndex + 1);
@@ -1737,8 +1776,10 @@ function renderCalendar(state){
     legend.className = 'holiday-legend';
     const items = monthHolidays.map(h => String(h.day).padStart(2,'0') + '/' + String(h.month).padStart(2,'0') + ' – ' + h.note);
     legend.innerHTML = '<strong>Ngày lễ trong tháng:</strong> ' + items.join(' · ');
-    area.appendChild(legend);
+    scrollBox.appendChild(legend);
   }
+
+  area.appendChild(scrollBox);
 }
 
 function makeDateCell(day, year, monthIndex){
@@ -1983,6 +2024,7 @@ function openEditor(cell, day, state, role){
 function renderStats(state){
   const area = document.getElementById('statsArea');
   area.innerHTML = '';
+  area.style.display = statsPanelOpen ? 'block' : 'none';
 
   const box = document.createElement('div');
   box.className = 'stats';
@@ -2230,7 +2272,13 @@ async function initApp(){
   document.getElementById('monthInput').value = (saved && saved.month) ? saved.month : defaultMonthVal;
   document.getElementById('cycleStartDow').value = (saved && saved.cycleStartDow) ? saved.cycleStartDow : '2';
   document.getElementById('cycleLength').value = (saved && saved.cycleLength) ? saved.cycleLength : '7';
-  refreshLiveViews();
+
+  const initialMonthKey = document.getElementById('monthInput').value;
+  if(historyByMonth[initialMonthKey] && historyByMonth[initialMonthKey].assignments){
+    viewSavedMonth(initialMonthKey);
+  } else {
+    generate();
+  }
 }
 
 async function fetchServerCloudConfig(){
@@ -2256,29 +2304,8 @@ async function bootstrapCloudConfig(){
   }
 }
 
-function initCloudConfigInputs(){
-  document.getElementById('cloudAdvancedToggle').addEventListener('click', () => {
-    const fields = document.getElementById('cloudConfigFields');
-    fields.hidden = !fields.hidden;
-  });
-}
-
-async function onCloudConfigChange(){
-  const url = document.getElementById('supabaseUrl').value.trim().replace(/\/+$/, '');
-  const key = document.getElementById('supabaseKey').value.trim();
-  saveCloudConfig(url, key);
-  updateCloudStatusBadge();
-  if(url && key){
-    await initApp();
-  }
-}
-
-document.getElementById('supabaseUrl').addEventListener('change', onCloudConfigChange);
-document.getElementById('supabaseKey').addEventListener('change', onCloudConfigChange);
-
 (async () => {
   await bootstrapCloudConfig();
-  initCloudConfigInputs();
   await initApp();
 })();
 </script>
