@@ -1182,10 +1182,7 @@ body.dark .manage-staff-link{
     <input type="month" id="monthInput">
 
     <div class="action-btn-group">
-      <div class="generate-row">
-        <button class="primary-btn" id="generateBtn">Tạo lịch</button>
-        <button class="template-btn" id="saveAsTemplateBtn" title="Lưu danh sách nhân sự hiện tại làm mẫu mặc định mới">💾 Lưu làm mẫu</button>
-      </div>
+      <button class="primary-btn" id="generateBtn">Tạo lịch</button>
       <button class="secondary-btn" id="reshuffleBtn" title="Tạo lại lịch cho cùng tháng này với một thứ tự ưu tiên ngẫu nhiên khác — dùng khi nhiều người đang hòa nhau về số lượt trực và muốn thử một cách chia khác nhưng vẫn đảm bảo công bằng.">Xếp lại (đổi ưu tiên)</button>
       <label class="confirm-check-label" title="Riêng khi ghi đè lên tháng đã có lịch lưu sẵn, hệ thống luôn hỏi xác nhận bắt buộc, không phụ thuộc ô tick này.">
         <input type="checkbox" id="confirmBeforeSave" checked>
@@ -1197,19 +1194,8 @@ body.dark .manage-staff-link{
 
     <div id="cloudStatus" class="cloud-status"></div>
 
-    <label>Chu kỳ Quá Hạn</label>
-    <div class="cycle-row">
-      <select id="cycleStartDow">
-        <option value="0">Bắt đầu: T2</option>
-        <option value="1">Bắt đầu: T3</option>
-        <option value="2" selected>Bắt đầu: T4</option>
-        <option value="3">Bắt đầu: T5</option>
-        <option value="4">Bắt đầu: T6</option>
-        <option value="5">Bắt đầu: T7</option>
-        <option value="6">Bắt đầu: CN</option>
-      </select>
-      <input type="number" id="cycleLength" min="1" max="31" value="7" title="Số ngày mỗi chu kỳ">
-    </div>
+    <input type="hidden" id="cycleStartDow" value="2">
+    <input type="hidden" id="cycleLength" value="7">
 
     <button class="manage-staff-link" id="manageStaffBtn" title="Sửa danh sách/vai trò nhân sự mà không tạo lịch mới — hữu ích khi đang chỉnh sửa 1 tháng đã lưu">👥 Quản lý nhân sự</button>
   </div>
@@ -1347,6 +1333,14 @@ function saveHistory(){
 
 let historyByMonth = {};
 
+function hasAnyHistory(name){
+  return Object.keys(historyByMonth).some(mKey => {
+    const e = historyByMonth[mKey];
+    if(!e) return false;
+    return (e.quaHan && e.quaHan[name]) || (e.weekday && e.weekday[name]) || (e.sunday && e.sunday[name]);
+  });
+}
+
 function computeBaseline(role, targetMonthKey, names){
   const counts = {}, last = {};
   names.forEach(n => { counts[n] = 0; last[n] = undefined; });
@@ -1361,6 +1355,17 @@ function computeBaseline(role, targetMonthKey, names){
       }
     });
   });
+
+  const establishedCounts = names.filter(n => hasAnyHistory(n)).map(n => counts[n]);
+  if(establishedCounts.length > 0){
+    const avg = Math.round(establishedCounts.reduce((a, b) => a + b, 0) / establishedCounts.length);
+    names.forEach(n => {
+      if(!hasAnyHistory(n) && counts[n] === 0){
+        counts[n] = avg;
+      }
+    });
+  }
+
   return { counts, last };
 }
 
@@ -1724,8 +1729,8 @@ function defaultStaff(){
 
 let saveStateCloudTimer = null;
 
-function saveState(){
-  const data = {
+function buildStaffConfigData(){
+  return {
     staff: staff.map(s => ({
       name:s.name,
       msnv:s.msnv || '',
@@ -1738,13 +1743,26 @@ function saveState(){
     cycleStartDow: document.getElementById('cycleStartDow').value,
     cycleLength: document.getElementById('cycleLength').value
   };
+}
+
+function saveState(){
+  const data = buildStaffConfigData();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){}
+  if(saveStateCloudTimer) clearTimeout(saveStateCloudTimer);
+  cloudSet('staff_config', data);
+}
+
+function saveStateDebounced(){
+  const data = buildStaffConfigData();
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }catch(e){}
   if(saveStateCloudTimer) clearTimeout(saveStateCloudTimer);
   saveStateCloudTimer = setTimeout(() => {
     cloudSet('staff_config', data);
-  }, 1000);
+  }, 800);
 }
 
 async function loadSavedState(){
@@ -1764,8 +1782,14 @@ function renderStaffRows(){
   renderStaffEditorInto(container);
 }
 
+function updateManageStaffBtnLabel(){
+  const btn = document.getElementById('manageStaffBtn');
+  if(btn) btn.textContent = '👥 Quản lý nhân sự (' + staff.length + ')';
+}
+
 function renderStaffEditorInto(container){
   container.innerHTML = '';
+  updateManageStaffBtnLabel();
 
   staff.forEach((s, idx) => {
     const card = document.createElement('div');
@@ -1814,13 +1838,13 @@ function renderStaffEditorInto(container){
     nameInput.type = 'text';
     nameInput.placeholder = 'Tên';
     nameInput.value = s.name;
-    nameInput.addEventListener('input', e => { s.name = e.target.value; saveState(); refreshLiveViews(); });
+    nameInput.addEventListener('input', e => { s.name = e.target.value; saveStateDebounced(); refreshLiveViews(); });
 
     const offInput = document.createElement('input');
     offInput.type = 'text';
     offInput.placeholder = 'Ngày nghỉ, vd 5,12';
     offInput.value = s.off;
-    offInput.addEventListener('input', e => { s.off = e.target.value; saveState(); refreshLiveViews(); });
+    offInput.addEventListener('input', e => { s.off = e.target.value; saveStateDebounced(); refreshLiveViews(); });
 
     const delBtn = document.createElement('button');
     delBtn.textContent = '✕';
@@ -2008,6 +2032,43 @@ function showParticipationModal(onConfirm, confirmLabel){
   hint.className = 'modal-hint';
   hint.textContent = 'Chỉnh sửa danh sách, vai trò, ngày nghỉ trước khi tạo lịch. Bỏ tick "Tháng này" nếu ai đó không trực tháng đang chọn.';
   box.appendChild(hint);
+
+  const cycleLabel = document.createElement('label');
+  cycleLabel.textContent = 'Chu kỳ Quá Hạn';
+  cycleLabel.style.fontSize = '12px';
+  cycleLabel.style.fontWeight = '600';
+  cycleLabel.style.color = 'var(--muted)';
+  cycleLabel.style.display = 'block';
+  cycleLabel.style.marginBottom = '4px';
+  box.appendChild(cycleLabel);
+
+  const cycleRow = document.createElement('div');
+  cycleRow.className = 'cycle-row';
+  const startSelect = document.createElement('select');
+  [['0','Bắt đầu: T2'],['1','Bắt đầu: T3'],['2','Bắt đầu: T4'],['3','Bắt đầu: T5'],['4','Bắt đầu: T6'],['5','Bắt đầu: T7'],['6','Bắt đầu: CN']].forEach(([val, label]) => {
+    const opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = label;
+    if(val === document.getElementById('cycleStartDow').value) opt.selected = true;
+    startSelect.appendChild(opt);
+  });
+  startSelect.addEventListener('change', () => {
+    document.getElementById('cycleStartDow').value = startSelect.value;
+    saveState();
+  });
+  const lengthInput = document.createElement('input');
+  lengthInput.type = 'number';
+  lengthInput.min = '1';
+  lengthInput.max = '31';
+  lengthInput.title = 'Số ngày mỗi chu kỳ';
+  lengthInput.value = document.getElementById('cycleLength').value;
+  lengthInput.addEventListener('change', () => {
+    document.getElementById('cycleLength').value = lengthInput.value;
+    saveState();
+  });
+  cycleRow.appendChild(startSelect);
+  cycleRow.appendChild(lengthInput);
+  box.appendChild(cycleRow);
 
   const staffContainer = document.createElement('div');
   staffContainer.id = 'modalStaffContainer';
@@ -2901,10 +2962,16 @@ function renderStats(state){
 
   const counts = {};
   state.names.forEach(n => { counts[n] = { truc:0, sun:0, holiday:0, qh:0 }; });
+  state.blocks.forEach(blk => {
+    const owner = state.blockAssignments[blk.id];
+    const forced = state.blockForced && state.blockForced[blk.id];
+    if(owner && counts[owner] && blk.daysInMonth.length > 0 && !forced){
+      counts[owner].qh += 1;
+    }
+  });
   Object.keys(state.assignments).forEach(dStr => {
     const d = parseInt(dStr, 10);
     const rec = state.assignments[d];
-    if(rec.quaHan && counts[rec.quaHan]) counts[rec.quaHan].qh += 1;
     if(!rec.truc || !counts[rec.truc]) return;
     const holiday = isHolidayDay(state, d);
     const isSunday = dowIndex(new Date(state.year, state.monthIndex, d)) === 6;
@@ -2919,7 +2986,7 @@ function renderStats(state){
 
   const table = document.createElement('table');
   table.className = 'stats-table';
-  table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (ngày)</th><th>Tổng lượt trực</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (tuần)</th><th>Tổng lượt trực</th></tr></thead>';
   const tbody = document.createElement('tbody');
   canonicalSortNames(state.names).forEach(n => {
     const total = counts[n].truc + counts[n].sun + counts[n].holiday + counts[n].qh;
@@ -3035,6 +3102,7 @@ function viewSavedMonth(monthKey){
       canSundayTruc: s.canSundayTruc !== false
     }));
     renderStaffRows();
+    updateManageStaffBtnLabel();
   }
 
   const [yearStr, monthStr] = monthKey.split('-');
@@ -3102,25 +3170,6 @@ document.getElementById('overallStatsBtn').addEventListener('click', showOverall
 document.getElementById('manageStaffBtn').addEventListener('click', () => {
   showParticipationModal(() => { refreshLiveViews(); }, 'Xong');
 });
-document.getElementById('saveAsTemplateBtn').addEventListener('click', () => {
-  const activeList = staff.filter(s => s.name && s.name.trim());
-  if(activeList.length === 0){
-    alert('Danh sách nhân sự đang trống, không có gì để lưu làm mẫu.');
-    return;
-  }
-  const ok = confirm('Lưu danh sách nhân sự hiện tại (' + activeList.length + ' người) làm mẫu mặc định mới?\n\nMẫu này sẽ được dùng làm danh sách khởi tạo cho lần đầu mở app trên trình duyệt/máy khác.');
-  if(!ok) return;
-  const list = activeList.map(s => ({
-    name:s.name.trim(),
-    msnv:s.msnv || '',
-    canQuaHan:s.canQuaHan,
-    canWeekdayTruc:s.canWeekdayTruc,
-    canSundayTruc:s.canSundayTruc
-  }));
-  customDefaultTemplate = list;
-  saveCustomDefaultTemplate(list);
-  alert('Đã lưu mẫu mặc định mới (' + list.length + ' người).');
-});
 document.getElementById('reshuffleBtn').addEventListener('click', generate);
 document.getElementById('saveMonthBtn').addEventListener('click', confirmAndSaveMonth);
 document.getElementById('monthInput').addEventListener('change', saveState);
@@ -3171,6 +3220,7 @@ async function initApp(){
     staff = defaultStaff();
   }
   renderStaffRows();
+  updateManageStaffBtnLabel();
 
   document.getElementById('monthInput').value = defaultMonthVal;
   document.getElementById('cycleStartDow').value = (saved && saved.cycleStartDow) ? saved.cycleStartDow : '2';
