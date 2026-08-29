@@ -2115,7 +2115,7 @@ function showOverallStatsModal(){
 
     const table = document.createElement('table');
     table.className = 'stats-table';
-    table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
+    table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (tuần)</th><th>Tổng lượt trực</th></tr></thead>';
     const tbody = document.createElement('tbody');
     const grand = { truc:0, sun:0, holiday:0, qh:0 };
     names.forEach(n => {
@@ -2915,7 +2915,7 @@ function renderStats(state){
 
   const table = document.createElement('table');
   table.className = 'stats-table';
-  table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (ngày)</th><th>Tổng lượt trực</th></tr></thead>';
   const tbody = document.createElement('tbody');
   canonicalSortNames(state.names).forEach(n => {
     const total = counts[n].truc + counts[n].sun + counts[n].holiday + counts[n].qh;
