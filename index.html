@@ -546,6 +546,8 @@ body.dark .grand-total-row{
   border:1px solid var(--line);
   margin-bottom:5px;
   box-shadow:0 2px 5px rgba(0,0,0,0.05);
+  width:fit-content;
+  min-width:100%;
 }
 .week-header{
   display:grid;
@@ -583,9 +585,6 @@ body.dark .grand-total-row{
   z-index:0;
 }
 .calendar-sticky-head{
-  position:sticky;
-  top:66px;
-  z-index:20;
   background:var(--paper);
   padding-top:4px;
 }
@@ -1134,6 +1133,28 @@ body.dark .modal-cancel-btn{
 .overall-stats-box{
   width:520px;
 }
+.staff-modal-box{
+  width:480px;
+}
+.manage-staff-link{
+  width:100%;
+  padding:8px;
+  background:none;
+  border:1px dashed var(--line);
+  color:var(--muted);
+  border-radius:8px;
+  font-size:11.5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+.manage-staff-link:hover{
+  border-color:var(--blue);
+  color:var(--blue);
+}
+body.dark .manage-staff-link{
+  border-color:#4A4238;
+  color:#B7AC9C;
+}
 </style>
 </head>
 <body>
@@ -1190,10 +1211,7 @@ body.dark .modal-cancel-btn{
       <input type="number" id="cycleLength" min="1" max="31" value="7" title="Số ngày mỗi chu kỳ">
     </div>
 
-    <label>Danh sách nhân sự &amp; ngày nghỉ</label>
-    <div class="hint">Nhập ngày nghỉ dạng số. Ví dụ: 5, 12, 20.</div>
-    <div id="staffContainer"></div>
-    <button class="add-btn" id="addStaffBtn">+ Thêm người</button>
+    <button class="manage-staff-link" id="manageStaffBtn" title="Sửa danh sách/vai trò nhân sự mà không tạo lịch mới — hữu ích khi đang chỉnh sửa 1 tháng đã lưu">👥 Quản lý nhân sự</button>
   </div>
 
   <div class="calendar-column">
@@ -1741,39 +1759,21 @@ async function loadSavedState(){
 }
 
 function renderStaffRows(){
-  const container = document.getElementById('staffContainer');
+  const container = document.getElementById('modalStaffContainer');
+  if(!container) return;
+  renderStaffEditorInto(container);
+}
+
+function renderStaffEditorInto(container){
   container.innerHTML = '';
 
-  const hiddenCount = staff.filter(s => monthlyExcludedNames.has(s.name)).length;
-  if(hiddenCount > 0){
-    const unhideBar = document.createElement('div');
-    unhideBar.className = 'unhide-bar';
-    const text = document.createElement('span');
-    text.textContent = '🙈 ' + hiddenCount + ' người không tham gia tháng này. ';
-    const link = document.createElement('span');
-    link.className = 'unhide-link';
-    link.textContent = 'Hiện lại tất cả';
-    link.addEventListener('click', () => {
-      monthlyExcludedNames = new Set();
-      renderStaffRows();
-      refreshLiveViews();
-    });
-    unhideBar.appendChild(text);
-    unhideBar.appendChild(link);
-    container.appendChild(unhideBar);
-  }
-
-  const visible = staff
-    .map((s, idx) => ({ s, idx }))
-    .filter(({ s }) => !monthlyExcludedNames.has(s.name));
-
-  visible.forEach(({ s, idx }, displayIdx) => {
+  staff.forEach((s, idx) => {
     const card = document.createElement('div');
     card.className = 'staff-card';
 
     const indexLabel = document.createElement('div');
     indexLabel.className = 'staff-index';
-    indexLabel.textContent = '#' + (displayIdx + 1) + ' / ' + visible.length;
+    indexLabel.textContent = '#' + (idx + 1) + ' / ' + staff.length;
     card.appendChild(indexLabel);
 
     const row = document.createElement('div');
@@ -1790,7 +1790,7 @@ function renderStaffRows(){
       const tmp = staff[idx - 1];
       staff[idx - 1] = staff[idx];
       staff[idx] = tmp;
-      renderStaffRows();
+      renderStaffEditorInto(container);
       saveState();
       refreshLiveViews();
     });
@@ -1803,7 +1803,7 @@ function renderStaffRows(){
       const tmp = staff[idx + 1];
       staff[idx + 1] = staff[idx];
       staff[idx] = tmp;
-      renderStaffRows();
+      renderStaffEditorInto(container);
       saveState();
       refreshLiveViews();
     });
@@ -1827,7 +1827,7 @@ function renderStaffRows(){
     delBtn.title = 'Xóa';
     delBtn.addEventListener('click', () => {
       staff = staff.filter(x => x.id !== s.id);
-      renderStaffRows();
+      renderStaffEditorInto(container);
       saveState();
       refreshLiveViews();
     });
@@ -1842,11 +1842,41 @@ function renderStaffRows(){
     flags.appendChild(makeFlagCheckbox(s, 'canQuaHan', 'Quá Hạn'));
     flags.appendChild(makeFlagCheckbox(s, 'canWeekdayTruc', 'Trực thường'));
     flags.appendChild(makeFlagCheckbox(s, 'canSundayTruc', 'Trực CN'));
+    flags.appendChild(makeParticipationCheckbox(s, container));
 
     card.appendChild(row);
     card.appendChild(flags);
     container.appendChild(card);
   });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-btn';
+  addBtn.textContent = '+ Thêm người';
+  addBtn.addEventListener('click', () => {
+    staff.push({ id:newStaffId(), name:'', off:'', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true });
+    renderStaffEditorInto(container);
+    saveState();
+    refreshLiveViews();
+  });
+  container.appendChild(addBtn);
+}
+
+function makeParticipationCheckbox(s, container){
+  const label = document.createElement('label');
+  label.title = 'Bỏ tick nếu người này không trực tháng đang chọn (vẫn giữ nguyên thông tin cho các tháng sau).';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = !monthlyExcludedNames.has(s.name);
+  checkbox.addEventListener('change', e => {
+    if(e.target.checked){
+      monthlyExcludedNames.delete(s.name);
+    } else {
+      monthlyExcludedNames.add(s.name);
+    }
+  });
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(' Tháng này'));
+  return label;
 }
 
 function makeFlagCheckbox(s, flagKey, labelText){
@@ -1963,55 +1993,26 @@ function findAdjacentBlockOwner(block, cycleLength, year, monthIndex){
 let monthlyExcludedNames = new Set();
 const PARTICIPATION_SKIP_KEY = 'shift_scheduler_skip_participation_modal_v1';
 
-function getSkipParticipationModal(){
-  try{ return localStorage.getItem(PARTICIPATION_SKIP_KEY) === '1'; }catch(e){ return false; }
-}
-
-function setSkipParticipationModal(val){
-  try{ localStorage.setItem(PARTICIPATION_SKIP_KEY, val ? '1' : '0'); }catch(e){}
-}
-
-function showParticipationModal(onConfirm){
+function showParticipationModal(onConfirm, confirmLabel){
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
   const box = document.createElement('div');
-  box.className = 'modal-box';
+  box.className = 'modal-box staff-modal-box';
 
   const title = document.createElement('h3');
-  title.textContent = 'Xác nhận nhân sự tham gia tháng này';
+  title.textContent = 'Nhân sự cho tháng này';
   box.appendChild(title);
 
   const hint = document.createElement('div');
   hint.className = 'modal-hint';
-  hint.textContent = 'Bỏ tick người nào không trực tháng này (vẫn giữ nguyên vai trò của họ cho các tháng sau).';
+  hint.textContent = 'Chỉnh sửa danh sách, vai trò, ngày nghỉ trước khi tạo lịch. Bỏ tick "Tháng này" nếu ai đó không trực tháng đang chọn.';
   box.appendChild(hint);
 
-  const list = document.createElement('div');
-  list.className = 'modal-checklist';
-  const names = activeStaffNames();
-  const checkboxes = {};
-  names.forEach(n => {
-    const row = document.createElement('label');
-    row.className = 'modal-check-row';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = !monthlyExcludedNames.has(n);
-    checkboxes[n] = cb;
-    row.appendChild(cb);
-    row.appendChild(document.createTextNode(' ' + n));
-    list.appendChild(row);
-  });
-  box.appendChild(list);
-
-  const skipRow = document.createElement('label');
-  skipRow.className = 'modal-skip-row';
-  const skipCb = document.createElement('input');
-  skipCb.type = 'checkbox';
-  skipCb.checked = getSkipParticipationModal();
-  skipRow.appendChild(skipCb);
-  skipRow.appendChild(document.createTextNode(' Không hỏi lại bước này'));
-  box.appendChild(skipRow);
+  const staffContainer = document.createElement('div');
+  staffContainer.id = 'modalStaffContainer';
+  box.appendChild(staffContainer);
+  renderStaffEditorInto(staffContainer);
 
   const btnRow = document.createElement('div');
   btnRow.className = 'modal-btn-row';
@@ -2021,12 +2022,9 @@ function showParticipationModal(onConfirm){
   cancelBtn.addEventListener('click', () => overlay.remove());
   const confirmBtn = document.createElement('button');
   confirmBtn.className = 'modal-confirm-btn';
-  confirmBtn.textContent = 'Xác nhận & Tạo lịch';
+  confirmBtn.textContent = confirmLabel || 'Xác nhận & Tạo lịch';
   confirmBtn.addEventListener('click', () => {
-    monthlyExcludedNames = new Set(names.filter(n => !checkboxes[n].checked));
-    setSkipParticipationModal(skipCb.checked);
     overlay.remove();
-    renderStaffRows();
     onConfirm();
   });
   btnRow.appendChild(cancelBtn);
@@ -3095,25 +3093,15 @@ function viewSavedMonth(monthKey){
   renderStats(state);
 }
 
-document.getElementById('addStaffBtn').addEventListener('click', () => {
-  staff.push({ id:newStaffId(), name:'', off:'', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true });
-  renderStaffRows();
-  saveState();
-  refreshLiveViews();
-});
-
 function handleGenerateClick(){
-  if(getSkipParticipationModal()){
-    monthlyExcludedNames = new Set();
-    renderStaffRows();
-    generate();
-  } else {
-    showParticipationModal(generate);
-  }
+  showParticipationModal(generate);
 }
 
 document.getElementById('generateBtn').addEventListener('click', handleGenerateClick);
 document.getElementById('overallStatsBtn').addEventListener('click', showOverallStatsModal);
+document.getElementById('manageStaffBtn').addEventListener('click', () => {
+  showParticipationModal(() => { refreshLiveViews(); }, 'Xong');
+});
 document.getElementById('saveAsTemplateBtn').addEventListener('click', () => {
   const activeList = staff.filter(s => s.name && s.name.trim());
   if(activeList.length === 0){
