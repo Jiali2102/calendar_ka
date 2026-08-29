@@ -202,7 +202,7 @@ input[type=month]{
   margin:8px 0;
 }
 body.dark .action-btn-group{
-  background:#2A2521;
+  background:#2E2B27;
   border-color:#4A4238;
 }
 .cycle-row{
@@ -519,11 +519,12 @@ body.dark .template-btn:hover{
 }
 .zodiac-watermark{
   position:absolute;
-  right:14px;
-  bottom:10px;
-  font-size:170px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  font-size:340px;
   line-height:1;
-  opacity:0.05;
+  opacity:0.06;
   pointer-events:none;
   z-index:0;
 }
@@ -535,7 +536,7 @@ body.dark .template-btn:hover{
   padding-top:4px;
 }
 body.dark .calendar-sticky-head{
-  background:#1E1B18;
+  background:#242321;
 }
 .calendar-header-row{
   display:grid;
@@ -725,6 +726,18 @@ body.dark .calendar-sticky-head{
   color:#C4131E;
   font-weight:800;
 }
+.observance-icon{
+  font-size:10px;
+  opacity:0.85;
+}
+.conflict-flame{
+  font-size:9px;
+  margin-left:2px;
+  animation:blinkHighlight 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .conflict-flame{ animation:none; }
+}
 .week-a .date-row .cell.holiday, .week-b .date-row .cell.holiday{
   background:linear-gradient(150deg, #C4131E 0%, #8E0000 100%) !important;
   box-shadow:inset 0 0 0 2px #FFD700;
@@ -901,8 +914,8 @@ table.stats-table td:first-child, table.stats-table th:first-child{
   .week-block{break-inside:avoid;}
 }
 body.dark{
-  background:#1E1B18;
-  color:#EDE8E0;
+  background:#242321;
+  color:#CBC4B8;
 }
 body.dark .panel,
 body.dark .stats,
@@ -911,12 +924,12 @@ body.dark .countdown-box,
 body.dark .readonly-banner,
 body.dark .warning-box,
 body.dark .holiday-legend{
-  background:#2A2521;
+  background:#2E2B27;
   border-color:#3A352E;
-  color:#EDE8E0;
+  color:#CBC4B8;
 }
 body.dark .role-row .cell:first-child{
-  background:#2A2521;
+  background:#2E2B27;
   color:#C9BFAF;
 }
 body.dark .role-row.quahan .cell:first-child{
@@ -929,19 +942,19 @@ body.dark .staff-row input,
 body.dark .cycle-row select,
 body.dark .cycle-row input,
 body.dark select.edit-select{
-  background:#332C25;
+  background:#38332D;
   border-color:#4A4238;
-  color:#EDE8E0;
+  color:#CBC4B8;
 }
 body.dark .date-row .cell,
 body.dark .role-row.truc .cell:not(:first-child),
 body.dark .role-row.quahan .cell:not(:first-child){
-  background:#2E2822 !important;
-  color:#EDE8E0;
+  background:#332F2A !important;
+  color:#CBC4B8;
 }
 body.dark .role-row.quahan .cell.qh-a{background:#1F2E38 !important;}
 body.dark .role-row.quahan .cell.qh-b{background:#1F3324 !important;}
-body.dark .name-tag{color:#EDE8E0;}
+body.dark .name-tag{color:#CBC4B8;}
 body.dark .name-tag:hover{background:#4A3B2A;}
 body.dark .name-tag.empty{color:#E08D86;}
 body.dark .out-month{color:#5A5348 !important;}
@@ -950,22 +963,22 @@ body.dark .rule-list li,
 body.dark .rules-hint,
 body.dark .muted,
 body.dark label{color:#B7AC9C;}
-body.dark .saved-month-btn{background:#332C25;color:#EDE8E0;border-color:#4A4238;}
+body.dark .saved-month-btn{background:#38332D;color:#CBC4B8;border-color:#4A4238;}
 body.dark table.stats-table th{color:#B7AC9C;}
 body.dark table.stats-table td,
 body.dark table.stats-table th{border-color:#3A352E;}
 body.dark .calendar-title{color:#FF9E5E;}
-body.dark .add-btn{background:#332C25;border-color:#5A4A32;color:#F0C98A;}
+body.dark .add-btn{background:#38332D;border-color:#5A4A32;color:#F0C98A;}
 body.dark .staff-card{border-color:#3A352E;}
-body.dark .staff-arrows button{background:#2A2521;border-color:#4A4238;color:#B7AC9C;}
-body.dark .secondary-btn{background:#332C25;color:#FF9E5E;border-color:#FF8A3D;}
+body.dark .staff-arrows button{background:#2E2B27;border-color:#4A4238;color:#B7AC9C;}
+body.dark .secondary-btn{background:#38332D;color:#FF9E5E;border-color:#FF8A3D;}
 body.dark .cloud-status.warn{background:#3A2E14;color:#F0C98A;border-color:#5A4A24;}
 body.dark .cloud-status.ok{background:#16321F;color:#7FD79A;border-color:#2A5C3B;}
 body.dark .cloud-status.error{background:#3A1613;color:#F0938A;border-color:#5C2A24;}
 body.dark .highlight-row{color:#B7AC9C;}
 body.dark .countdown-bar{background:#4A4030;}
 body.dark .countdown-fill{background:linear-gradient(90deg, #FF9671, #C94800);}
-body.dark .saved-del-btn{background:#2A2521;border-color:#4A4238;color:#E08D86;}
+body.dark .saved-del-btn{background:#2E2B27;border-color:#4A4238;color:#E08D86;}
 body.dark .saved-del-btn:hover{background:#3A1613;border-color:#5C2A24;}
 body.dark .rules-collapsible h2{color:#FF9E5E;}
 body.dark h2{color:#FF9E5E;}
@@ -1053,13 +1066,13 @@ body.dark h2{color:#FF9E5E;}
 }
 .modal-confirm-btn:hover{background:var(--orange-dark);}
 body.dark .modal-box{
-  background:#2A2521;
-  color:#EDE8E0;
+  background:#2E2B27;
+  color:#CBC4B8;
 }
 body.dark .modal-box h3{color:#FF9E5E;}
 body.dark .modal-hint, body.dark .modal-skip-row{color:#B7AC9C;}
 body.dark .modal-cancel-btn{
-  background:#332C25;
+  background:#38332D;
   border-color:#4A4238;
   color:#B7AC9C;
 }
@@ -1095,9 +1108,9 @@ body.dark .modal-cancel-btn{
         <button class="template-btn" id="saveAsTemplateBtn" title="Lưu danh sách nhân sự hiện tại làm mẫu mặc định mới">💾 Lưu làm mẫu</button>
       </div>
       <button class="secondary-btn" id="reshuffleBtn" title="Tạo lại lịch cho cùng tháng này với một thứ tự ưu tiên ngẫu nhiên khác — dùng khi nhiều người đang hòa nhau về số lượt trực và muốn thử một cách chia khác nhưng vẫn đảm bảo công bằng.">Xếp lại (đổi ưu tiên)</button>
-      <label class="confirm-check-label">
+      <label class="confirm-check-label" title="Riêng khi ghi đè lên tháng đã có lịch lưu sẵn, hệ thống luôn hỏi xác nhận bắt buộc, không phụ thuộc ô tick này.">
         <input type="checkbox" id="confirmBeforeSave" checked>
-        Yêu cầu xác nhận trước khi lưu
+        Xác nhận trước khi lưu (tháng mới)
       </label>
       <button class="save-btn" id="saveMonthBtn">💾 Lưu lịch</button>
     </div>
@@ -2383,6 +2396,43 @@ function renderCalendar(state){
   area.appendChild(scrollBox);
 }
 
+const OBSERVANCE_ICON_MAP = [
+  { match:'Valentine Trắng', icon:'🤍' },
+  { match:'Valentine', icon:'💝' },
+  { match:'Phụ nữ', icon:'🌷' },
+  { match:'Hạnh phúc', icon:'😊' },
+  { match:'Đoàn Thanh niên', icon:'🚩' },
+  { match:'Trái đất', icon:'🌍' },
+  { match:'sinh Chủ tịch Hồ Chí Minh', icon:'⭐' },
+  { match:'Thiếu nhi', icon:'🎈' },
+  { match:'Gia đình', icon:'👨‍👩‍👧‍👦' },
+  { match:'Thương binh', icon:'🕯️' },
+  { match:'Cách mạng tháng Tám', icon:'🚩' },
+  { match:'Truyền hình', icon:'📺' },
+  { match:'Doanh nhân', icon:'💼' },
+  { match:'Nông dân', icon:'🌾' },
+  { match:'Hội Phụ nữ', icon:'🌸' },
+  { match:'Nhà giáo', icon:'🍎' },
+  { match:'Quân đội', icon:'🎖️' },
+  { match:'Giáng Sinh', icon:'🎄' },
+  { match:'Nguyên Tiêu', icon:'🏮' },
+  { match:'Hàn Thực', icon:'🍡' },
+  { match:'Phật Đản', icon:'☸️' },
+  { match:'Đoan Ngọ', icon:'🐉' },
+  { match:'Thất Tịch', icon:'💫' },
+  { match:'Vu Lan', icon:'🪷' },
+  { match:'Trung Thu', icon:'🌕' },
+  { match:'Trùng Cửu', icon:'🍁' },
+  { match:'Trùng Thập', icon:'🌾' },
+  { match:'Hạ Nguyên', icon:'🕯️' },
+  { match:'Ông Táo', icon:'🐟' }
+];
+
+function getObservanceIcon(note){
+  const found = OBSERVANCE_ICON_MAP.find(o => note.includes(o.match));
+  return found ? found.icon : '📌';
+}
+
 function makeDateCell(day, year, monthIndex){
   const c = document.createElement('div');
   c.className = 'cell';
@@ -2409,6 +2459,10 @@ function makeDateCell(day, year, monthIndex){
       c.appendChild(icon);
     } else {
       c.classList.add('observance');
+      const icon = document.createElement('span');
+      icon.className = 'holiday-icon observance-icon';
+      icon.textContent = getObservanceIcon(entries[0].note);
+      c.appendChild(icon);
     }
   }
   return c;
@@ -2451,6 +2505,11 @@ function isHolidayDay(state, dateNum){
   return isRedHolidayDay(state.year, state.monthIndex + 1, dateNum);
 }
 
+function hasSameDayConflict(state, dateNum){
+  const rec = state.assignments[dateNum];
+  return !!(rec && rec.truc && rec.quaHan && rec.truc === rec.quaHan);
+}
+
 function makeAssignCell(day, state, role){
   const c = document.createElement('div');
   c.className = 'cell';
@@ -2460,14 +2519,22 @@ function makeAssignCell(day, state, role){
   const rec = state.assignments[day.dateNum];
   const val = rec ? rec[role] : null;
   const holiday = isHolidayDay(state, day.dateNum);
+  const conflict = hasSameDayConflict(state, day.dateNum);
 
   const tag = document.createElement('span');
   if(val){
     tag.className = 'name-tag' + (highlightName && val === highlightName ? ' highlighted' : '');
     appendNameWithAvatar(tag, val);
+    if(conflict){
+      const flame = document.createElement('span');
+      flame.className = 'conflict-flame';
+      flame.textContent = '🔥';
+      flame.title = 'Ngoại lệ: cùng 1 người vừa Trực Room vừa Quá Hạn ngày này';
+      tag.appendChild(flame);
+    }
   } else if(holiday){
     tag.className = 'name-tag volunteer';
-    tag.textContent = 'Đăng ký NV';
+    tag.textContent = 'ĐK trực';
   } else {
     tag.className = 'name-tag empty';
     tag.textContent = '—';
@@ -2526,9 +2593,17 @@ function makeQuaHanSegmentCell(seg, state){
   if(seg.value){
     tag.className = 'name-tag' + (highlightName && seg.value === highlightName ? ' highlighted' : '');
     appendNameWithAvatar(tag, seg.value);
+    const conflictDays = seg.days.filter(d => hasSameDayConflict(state, d.dateNum));
+    if(conflictDays.length > 0){
+      const flame = document.createElement('span');
+      flame.className = 'conflict-flame';
+      flame.textContent = '🔥';
+      flame.title = 'Ngoại lệ: cùng 1 người vừa Trực Room vừa Quá Hạn ngày ' + conflictDays.map(d => d.dateNum).join(', ');
+      tag.appendChild(flame);
+    }
   } else if(holiday){
     tag.className = 'name-tag volunteer';
-    tag.textContent = 'Đăng ký NV';
+    tag.textContent = 'NA';
   } else {
     tag.className = 'name-tag empty';
     tag.textContent = '—';
@@ -2567,9 +2642,6 @@ function openQuaHanBlockEditor(cell, seg, state){
         if(isHolidayDay(state, d)) return;
         if(!state.assignments[d]) state.assignments[d] = { truc:null, quaHan:null };
         state.assignments[d].quaHan = newName;
-        if(newName && state.assignments[d].truc === newName){
-          state.assignments[d].truc = null;
-        }
       });
     }
     renderCalendar(state);
@@ -2591,7 +2663,6 @@ function openEditor(cell, day, state, role){
     const liveStaff = staff.find(s => s.name.trim() === n);
     const offSet = liveStaff ? new Set(parseOffDays(liveStaff.off)) : (state.offMap[n] || new Set());
     if(offSet.has(day.dateNum)) return false;
-    if(n === otherVal) return false;
     if(role === 'truc'){
       const flags = liveStaff
         ? { canWeekdayTruc: liveStaff.canWeekdayTruc !== false, canSundayTruc: liveStaff.canSundayTruc !== false }
@@ -2699,9 +2770,13 @@ function confirmAndSaveMonth(){
     return;
   }
   const monthVal = lastState.year + '-' + String(lastState.monthIndex + 1).padStart(2, '0');
-  const requireConfirm = document.getElementById('confirmBeforeSave').checked;
+  const isOverwrite = !!(historyByMonth[monthVal] && historyByMonth[monthVal].assignments);
+  const requireConfirm = isOverwrite || document.getElementById('confirmBeforeSave').checked;
   if(requireConfirm){
-    const ok = confirm('Xác nhận lưu lịch tháng ' + monthVal + ' vào lịch sử?\n\nSau khi lưu, số liệu công bằng của các tháng sau sẽ được tính dựa trên kết quả này.');
+    const message = isOverwrite
+      ? '⚠️ Tháng ' + monthVal + ' ĐÃ CÓ lịch được lưu trước đó.\n\nBấm OK sẽ GHI ĐÈ và xóa mất bản đã lưu cũ. Hành động này không thể hoàn tác.\n\nBạn có chắc chắn muốn ghi đè không?'
+      : 'Xác nhận lưu lịch tháng ' + monthVal + ' vào lịch sử?\n\nSau khi lưu, số liệu công bằng của các tháng sau sẽ được tính dựa trên kết quả này.';
+    const ok = confirm(message);
     if(!ok) return;
   }
   syncHistory(lastState);
@@ -2892,10 +2967,6 @@ function applyDarkMode(isDark){
   try{ localStorage.setItem(DARK_MODE_KEY, isDark ? '1' : '0'); }catch(e){}
 }
 
-document.getElementById('homeTitle').addEventListener('click', () => {
-  location.reload();
-});
-
 document.getElementById('darkModeToggle').addEventListener('click', () => {
   const isDark = !document.body.classList.contains('dark');
   applyDarkMode(isDark);
@@ -2929,7 +3000,7 @@ async function initApp(){
   }
   renderStaffRows();
 
-  document.getElementById('monthInput').value = (saved && saved.month) ? saved.month : defaultMonthVal;
+  document.getElementById('monthInput').value = defaultMonthVal;
   document.getElementById('cycleStartDow').value = (saved && saved.cycleStartDow) ? saved.cycleStartDow : '2';
   document.getElementById('cycleLength').value = (saved && saved.cycleLength) ? saved.cycleLength : '7';
 
