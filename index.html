@@ -414,6 +414,55 @@ body.dark .template-btn:hover{
   cursor:pointer;
   margin-bottom:8px;
 }
+.overall-stats-btn{
+  width:100%;
+  padding:9px;
+  background:#fff;
+  color:#6A3FB5;
+  border:1px solid #6A3FB5;
+  border-radius:8px;
+  font-weight:600;
+  font-size:12.5px;
+  cursor:pointer;
+}
+.overall-stats-btn:hover{
+  background:#6A3FB5;
+  color:#fff;
+}
+body.dark .overall-stats-btn{
+  background:#2E2B27;
+  color:#B79AE8;
+  border-color:#6A3FB5;
+}
+.overall-range-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:14px;
+  font-size:12.5px;
+}
+.overall-range-row input[type=month]{
+  flex:1;
+  margin-bottom:0;
+  padding:6px 8px;
+  font-size:12.5px;
+}
+.overall-table-wrap{
+  max-height:50vh;
+  overflow-y:auto;
+}
+.overall-table-wrap table.stats-table{
+  width:100%;
+}
+.grand-total-row{
+  border-top:2px solid var(--orange);
+  background:var(--orange-tint);
+  font-weight:800;
+}
+body.dark .grand-total-row{
+  background:#38332D;
+  border-top-color:#FF8A3D;
+}
 .saved-month-btn{
   width:100%;
   padding:7px 8px;
@@ -1076,6 +1125,9 @@ body.dark .modal-cancel-btn{
   border-color:#4A4238;
   color:#B7AC9C;
 }
+.overall-stats-box{
+  width:520px;
+}
 </style>
 </head>
 <body>
@@ -1113,6 +1165,7 @@ body.dark .modal-cancel-btn{
         Xác nhận trước khi lưu (tháng mới)
       </label>
       <button class="save-btn" id="saveMonthBtn">💾 Lưu lịch</button>
+      <button class="overall-stats-btn" id="overallStatsBtn" title="Xem tổng số ngày trực cộng dồn qua nhiều tháng đã lưu">📈 Thống kê tổng hợp</button>
     </div>
 
     <div id="cloudStatus" class="cloud-status"></div>
@@ -1973,6 +2026,130 @@ function showParticipationModal(onConfirm){
   btnRow.appendChild(cancelBtn);
   btnRow.appendChild(confirmBtn);
   box.appendChild(btnRow);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function computeOverallStats(fromKey, toKey){
+  const totals = {};
+  const ensure = n => { if(!totals[n]) totals[n] = { truc:0, sun:0, holiday:0, qh:0 }; };
+
+  Object.keys(historyByMonth).forEach(mKey => {
+    if(mKey < fromKey || mKey > toKey) return;
+    const entry = historyByMonth[mKey];
+    if(!entry || !entry.assignments) return;
+    const [yStr, mStr] = mKey.split('-');
+    const year = parseInt(yStr, 10);
+    const month = parseInt(mStr, 10);
+
+    Object.keys(entry.quaHan || {}).forEach(n => { ensure(n); totals[n].qh += entry.quaHan[n].count || 0; });
+    Object.keys(entry.weekday || {}).forEach(n => { ensure(n); totals[n].truc += entry.weekday[n].count || 0; });
+    Object.keys(entry.sunday || {}).forEach(n => { ensure(n); totals[n].sun += entry.sunday[n].count || 0; });
+
+    Object.keys(entry.assignments).forEach(dStr => {
+      const d = parseInt(dStr, 10);
+      const rec = entry.assignments[d];
+      if(!rec || !rec.truc) return;
+      if(isRedHolidayDay(year, month, d)){
+        ensure(rec.truc);
+        totals[rec.truc].holiday += 1;
+      }
+    });
+  });
+
+  return totals;
+}
+
+function showOverallStatsModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const box = document.createElement('div');
+  box.className = 'modal-box overall-stats-box';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Thống kê tổng hợp nhiều tháng';
+  box.appendChild(title);
+
+  const hint = document.createElement('div');
+  hint.className = 'modal-hint';
+  hint.textContent = 'Cộng dồn số ngày trực từ các tháng ĐÃ LƯU trong khoảng thời gian chọn bên dưới.';
+  box.appendChild(hint);
+
+  const savedKeys = Object.keys(historyByMonth).filter(k => historyByMonth[k] && historyByMonth[k].assignments).sort();
+  const now = new Date();
+  const currentKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const defaultFrom = savedKeys.length ? savedKeys[0] : currentKey;
+  const defaultTo = savedKeys.length ? savedKeys[savedKeys.length - 1] : currentKey;
+
+  const rangeRow = document.createElement('div');
+  rangeRow.className = 'overall-range-row';
+  const fromInput = document.createElement('input');
+  fromInput.type = 'month';
+  fromInput.value = defaultFrom;
+  const toLabel = document.createElement('span');
+  toLabel.textContent = 'đến';
+  const toInput = document.createElement('input');
+  toInput.type = 'month';
+  toInput.value = defaultTo;
+  rangeRow.appendChild(fromInput);
+  rangeRow.appendChild(toLabel);
+  rangeRow.appendChild(toInput);
+  box.appendChild(rangeRow);
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'overall-table-wrap';
+  box.appendChild(tableWrap);
+
+  function renderTable(){
+    const fromVal = fromInput.value || defaultFrom;
+    const toVal = toInput.value || defaultTo;
+    const totals = computeOverallStats(fromVal, toVal);
+    const names = canonicalSortNames(Object.keys(totals));
+
+    if(names.length === 0){
+      tableWrap.innerHTML = '<div class="hint">Không có dữ liệu đã lưu trong khoảng thời gian này.</div>';
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'stats-table';
+    table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    const grand = { truc:0, sun:0, holiday:0, qh:0 };
+    names.forEach(n => {
+      const c = totals[n];
+      const total = c.truc + c.sun + c.holiday + c.qh;
+      grand.truc += c.truc;
+      grand.sun += c.sun;
+      grand.holiday += c.holiday;
+      grand.qh += c.qh;
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + n + '</td><td>' + c.truc + '</td><td>' + c.sun + '</td><td>' + c.holiday + '</td><td>' + c.qh + '</td><td><strong>' + total + '</strong></td>';
+      tbody.appendChild(tr);
+    });
+    const grandTotal = grand.truc + grand.sun + grand.holiday + grand.qh;
+    const trGrand = document.createElement('tr');
+    trGrand.className = 'grand-total-row';
+    trGrand.innerHTML = '<td>Tổng cộng</td><td>' + grand.truc + '</td><td>' + grand.sun + '</td><td>' + grand.holiday + '</td><td>' + grand.qh + '</td><td>' + grandTotal + '</td>';
+    tbody.appendChild(trGrand);
+    table.appendChild(tbody);
+    tableWrap.innerHTML = '';
+    tableWrap.appendChild(table);
+  }
+
+  fromInput.addEventListener('change', renderTable);
+  toInput.addEventListener('change', renderTable);
+  renderTable();
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'modal-cancel-btn';
+  closeBtn.textContent = 'Đóng';
+  closeBtn.style.marginTop = '14px';
+  closeBtn.style.width = '100%';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  box.appendChild(closeBtn);
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
@@ -2930,6 +3107,7 @@ function handleGenerateClick(){
 }
 
 document.getElementById('generateBtn').addEventListener('click', handleGenerateClick);
+document.getElementById('overallStatsBtn').addEventListener('click', showOverallStatsModal);
 document.getElementById('saveAsTemplateBtn').addEventListener('click', () => {
   const activeList = staff.filter(s => s.name && s.name.trim());
   if(activeList.length === 0){
