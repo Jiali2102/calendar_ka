@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lịch trực KAC</title>
+<title>KA tool</title>
 <style>
 :root{
   --orange:#FE5F00;
@@ -230,6 +230,29 @@ body.dark .action-btn-group{
   color:var(--muted);
   margin-bottom:3px;
 }
+.unhide-bar{
+  background:#FFF4E0;
+  border:1px solid #F0D08A;
+  border-radius:8px;
+  padding:8px 10px;
+  font-size:11.5px;
+  color:#8A5A00;
+  margin-bottom:12px;
+}
+.unhide-link{
+  color:var(--blue);
+  font-weight:700;
+  text-decoration:underline;
+  cursor:pointer;
+}
+body.dark .unhide-bar{
+  background:#3A2E14;
+  color:#F0C98A;
+  border-color:#5A4A24;
+}
+body.dark .unhide-link{
+  color:#6FA8E0;
+}
 body.dark .staff-index{color:#8A7F6E;}
 .staff-row{
   display:grid;
@@ -311,16 +334,17 @@ body.dark .staff-index{color:#8A7F6E;}
 }
 .generate-row{
   display:flex;
+  flex-wrap:wrap;
   gap:6px;
   margin-bottom:8px;
 }
 .generate-row .primary-btn{
-  flex:1;
+  flex:1 1 100%;
   margin-bottom:0;
 }
 .template-btn{
-  flex-shrink:0;
-  padding:0 10px;
+  flex:1;
+  padding:6px 8px;
   background:var(--blue-tint);
   color:var(--blue);
   border:1px solid var(--blue);
@@ -569,6 +593,19 @@ body.dark .calendar-sticky-head{
   align-items:center;
   gap:8px;
 }
+.saved-view-btn{
+  background:none;
+  border:1px solid var(--line);
+  color:var(--blue);
+  border-radius:7px;
+  cursor:pointer;
+  font-size:12px;
+  padding:5px 8px;
+}
+.saved-view-btn:hover{
+  background:var(--blue-tint);
+  border-color:var(--blue);
+}
 .saved-del-btn{
   background:none;
   border:1px solid var(--line);
@@ -645,6 +682,9 @@ body.dark .calendar-sticky-head{
   color:var(--muted);
   border-left:none;
   background:#fff;
+}
+.role-row.quahan .cell:first-child{
+  color:#1565C0;
 }
 .role-row.truc .cell:not(:first-child){background:#fffdf9;}
 .role-row.quahan .cell:not(:first-child){background:#fafcff;}
@@ -760,6 +800,29 @@ body.dark .calendar-sticky-head{
   0%,100%{ opacity:1; transform:scale(1); }
   50%{ opacity:0.5; transform:scale(1.12); }
 }
+.already-saved-warning{
+  background:#FFEBEE;
+  border:2px solid #E53935;
+  color:#B71C1C;
+  border-radius:10px;
+  padding:10px 16px;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:10px;
+  animation:blinkWarning 1.2s ease-in-out infinite;
+}
+@keyframes blinkWarning{
+  0%,100%{ background:#FFEBEE; }
+  50%{ background:#FFCDD2; }
+}
+body.dark .already-saved-warning{
+  background:#3A1613;
+  color:#FF8A80;
+  border-color:#B71C1C;
+}
+@media (prefers-reduced-motion: reduce){
+  .already-saved-warning{ animation:none; }
+}
 @media (prefers-reduced-motion: reduce){
   .name-tag.highlighted{ animation:none; opacity:1; }
 }
@@ -856,6 +919,9 @@ body.dark .role-row .cell:first-child{
   background:#2A2521;
   color:#C9BFAF;
 }
+body.dark .role-row.quahan .cell:first-child{
+  color:#6FA8E0;
+}
 body.dark input,
 body.dark select,
 body.dark .highlight-select,
@@ -903,6 +969,100 @@ body.dark .saved-del-btn{background:#2A2521;border-color:#4A4238;color:#E08D86;}
 body.dark .saved-del-btn:hover{background:#3A1613;border-color:#5C2A24;}
 body.dark .rules-collapsible h2{color:#FF9E5E;}
 body.dark h2{color:#FF9E5E;}
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.45);
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.modal-box{
+  background:#fff;
+  border-radius:14px;
+  padding:22px;
+  width:360px;
+  max-width:90vw;
+  max-height:80vh;
+  overflow-y:auto;
+  box-shadow:0 20px 50px rgba(0,0,0,0.3);
+}
+.modal-box h3{
+  margin:0 0 8px;
+  color:var(--orange-dark);
+  font-size:16px;
+}
+.modal-hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:12px;
+  line-height:1.5;
+}
+.modal-checklist{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:14px;
+  max-height:260px;
+  overflow-y:auto;
+  padding-right:4px;
+}
+.modal-check-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:13.5px;
+  cursor:pointer;
+}
+.modal-skip-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  color:var(--muted);
+  margin-bottom:14px;
+  cursor:pointer;
+}
+.modal-btn-row{
+  display:flex;
+  gap:8px;
+}
+.modal-cancel-btn{
+  flex:1;
+  padding:9px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  color:var(--muted);
+}
+.modal-confirm-btn{
+  flex:2;
+  padding:9px;
+  background:var(--orange);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+}
+.modal-confirm-btn:hover{background:var(--orange-dark);}
+body.dark .modal-box{
+  background:#2A2521;
+  color:#EDE8E0;
+}
+body.dark .modal-box h3{color:#FF9E5E;}
+body.dark .modal-hint, body.dark .modal-skip-row{color:#B7AC9C;}
+body.dark .modal-cancel-btn{
+  background:#332C25;
+  border-color:#4A4238;
+  color:#B7AC9C;
+}
 </style>
 </head>
 <body>
@@ -910,7 +1070,7 @@ body.dark h2{color:#FF9E5E;}
 <div class="topbar">
   <div class="season-decor" id="seasonDecor"></div>
   <button id="darkModeToggle" class="dark-toggle-btn" title="Chế độ tối">🌙</button>
-  <h1>Lịch trực KAC</h1>
+  <h1 id="homeTitle">Lịch trực KAC</h1>
 </div>
 
 <div class="layout">
@@ -918,10 +1078,10 @@ body.dark h2{color:#FF9E5E;}
     <div class="rules-collapsible">
       <h2>Quy tắc chung <span class="rules-hint">(di chuột để xem)</span></h2>
       <ul class="rule-list">
-        <li>Người phụ trách Quá Hạn không bị xếp Trực Room ngày đó.</li>
-        <li>Trực Room T2–T7 được luân phiên, CN được chia đều.</li>
-        <li>Quá Hạn xếp cố định (mặc định T4 → T3 tuần sau).</li>
-        <li>Đánh dấu nhân sự theo từng vai trò</li>
+        <li>Người phụ trách quá hạn không trực thường.</li>
+        <li>Trực thường T2–CN được luân phiên.</li>
+        <li>Tùy chỉnh chu kỳ quá hạn (mặc định T4 → T3).</li>
+        <li>Đánh dấu vai trò của từng nhân sự</li>
       </ul>
     </div>
 
@@ -932,9 +1092,9 @@ body.dark h2{color:#FF9E5E;}
     <div class="action-btn-group">
       <div class="generate-row">
         <button class="primary-btn" id="generateBtn">Tạo lịch</button>
-        <button class="template-btn" id="defaultTemplateBtn" title="Đặt lại 9 nhân sự mặc định cho tháng hiện tại">🔄 Mẫu mặc định</button>
+        <button class="template-btn" id="saveAsTemplateBtn" title="Lưu danh sách nhân sự hiện tại làm mẫu mặc định mới">💾 Lưu làm mẫu</button>
       </div>
-      <button class="secondary-btn" id="reshuffleBtn">Xếp lại (đổi ưu tiên)</button>
+      <button class="secondary-btn" id="reshuffleBtn" title="Tạo lại lịch cho cùng tháng này với một thứ tự ưu tiên ngẫu nhiên khác — dùng khi nhiều người đang hòa nhau về số lượt trực và muốn thử một cách chia khác nhưng vẫn đảm bảo công bằng.">Xếp lại (đổi ưu tiên)</button>
       <label class="confirm-check-label">
         <input type="checkbox" id="confirmBeforeSave" checked>
         Yêu cầu xác nhận trước khi lưu
@@ -959,7 +1119,7 @@ body.dark h2{color:#FF9E5E;}
     </div>
 
     <label>Danh sách nhân sự &amp; ngày nghỉ</label>
-    <div class="hint">Nhập ngày nghỉ dạng số, cách nhau bằng dấu phẩy. Ví dụ: 5, 12, 20. Bỏ tick vai trò nào thì người đó không được xếp vào vai trò đó.</div>
+    <div class="hint">Nhập ngày nghỉ dạng số. Ví dụ: 5, 12, 20.</div>
     <div id="staffContainer"></div>
     <button class="add-btn" id="addStaffBtn">+ Thêm người</button>
   </div>
@@ -973,10 +1133,31 @@ body.dark h2{color:#FF9E5E;}
 </div>
 
 <script>
-const dowLabels = ['T2','T3','T4','T5','T6','T7','CN'];
+const dowLabels = ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật'];
 const STORAGE_KEY = 'shift_scheduler_state_v1';
 const HISTORY_KEY = 'shift_scheduler_history_v1';
 const CLOUD_CONFIG_KEY = 'shift_scheduler_cloud_config_v1';
+const DEFAULT_TEMPLATE_KEY = 'shift_scheduler_default_template_v1';
+
+let customDefaultTemplate = null;
+
+async function loadCustomDefaultTemplate(){
+  const cloudData = await cloudGet('default_template');
+  if(cloudData && Array.isArray(cloudData) && cloudData.length > 0) return cloudData;
+  try{
+    const raw = localStorage.getItem(DEFAULT_TEMPLATE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  }catch(e){}
+  return null;
+}
+
+function saveCustomDefaultTemplate(list){
+  try{ localStorage.setItem(DEFAULT_TEMPLATE_KEY, JSON.stringify(list)); }catch(e){}
+  cloudSet('default_template', list);
+}
 
 function getCloudConfig(){
   try{
@@ -1017,7 +1198,7 @@ async function cloudSet(key, value){
   const cfg = getCloudConfig();
   if(!cfg.url || !cfg.key) return false;
   try{
-    const res = await fetch(cfg.url + '/rest/v1/scheduler_data', {
+    const res = await fetch(cfg.url + '/rest/v1/scheduler_data?on_conflict=key', {
       method:'POST',
       headers:{
         apikey:cfg.key,
@@ -1127,6 +1308,14 @@ function syncHistory(state){
     cycleStartDow: parseInt(document.getElementById('cycleStartDow').value, 10),
     cycleLength: parseInt(document.getElementById('cycleLength').value, 10) || 7,
     blockForced: state.blockForced ? { ...state.blockForced } : {},
+    staffSnapshot: staff.map(s => ({
+      name:s.name,
+      msnv:s.msnv || '',
+      off:s.off,
+      canQuaHan:s.canQuaHan,
+      canWeekdayTruc:s.canWeekdayTruc,
+      canSundayTruc:s.canSundayTruc
+    })),
     savedAt: Date.now()
   };
   saveHistory();
@@ -1403,15 +1592,53 @@ function newStaffId(){
   return 's' + seedCounter;
 }
 
-function defaultStaff(){
-  const names = ['Quỳnh Phạm','Thu Thủy','Cúc Nguyễn','Ngọc Bích', 'Quỳnh Đặng','Hải Mi','Anh Thy','Minh Thư','Gia Linh'];
-  return names.map(n => ({ id:newStaffId(), name:n, off:'', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true }));
+const CANONICAL_STAFF_LIST = [
+  { msnv:'252393', name:'Quỳnh Phạm', canQuaHan:false, canWeekdayTruc:false, canSundayTruc:true },
+  { msnv:'1868130', name:'Cúc Nguyễn', canQuaHan:true, canWeekdayTruc:false, canSundayTruc:true },
+  { msnv:'2041726', name:'Ngọc Bích', canQuaHan:true, canWeekdayTruc:false, canSundayTruc:true },
+  { msnv:'3059606', name:'Thu Thủy', canQuaHan:false, canWeekdayTruc:false, canSundayTruc:true },
+  { msnv:'3063490', name:'Hải Mi', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true },
+  { msnv:'3109649', name:'Quỳnh Đặng', canQuaHan:true, canWeekdayTruc:false, canSundayTruc:true },
+  { msnv:'3127548', name:'Anh Thy', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true },
+  { msnv:'3139113', name:'Minh Thư', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true },
+  { msnv:'3158340', name:'Quỳnh Trần', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true },
+  { msnv:'3171686', name:'Gia Linh', canQuaHan:true, canWeekdayTruc:true, canSundayTruc:true }
+];
+
+const CANONICAL_ORDER_INDEX = {};
+CANONICAL_STAFF_LIST.forEach((s, i) => { CANONICAL_ORDER_INDEX[s.name] = i; });
+
+function canonicalSortNames(names){
+  return names.slice().sort((a, b) => {
+    const ia = CANONICAL_ORDER_INDEX[a];
+    const ib = CANONICAL_ORDER_INDEX[b];
+    const va = ia === undefined ? 999 : ia;
+    const vb = ib === undefined ? 999 : ib;
+    if(va !== vb) return va - vb;
+    return a.localeCompare(b);
+  });
 }
+
+function defaultStaff(){
+  const source = (customDefaultTemplate && customDefaultTemplate.length > 0) ? customDefaultTemplate : CANONICAL_STAFF_LIST;
+  return source.map(s => ({
+    id:newStaffId(),
+    name:s.name,
+    msnv:s.msnv || '',
+    off:'',
+    canQuaHan: s.canQuaHan !== false,
+    canWeekdayTruc: s.canWeekdayTruc !== false,
+    canSundayTruc: s.canSundayTruc !== false
+  }));
+}
+
+let saveStateCloudTimer = null;
 
 function saveState(){
   const data = {
     staff: staff.map(s => ({
       name:s.name,
+      msnv:s.msnv || '',
       off:s.off,
       canQuaHan:s.canQuaHan,
       canWeekdayTruc:s.canWeekdayTruc,
@@ -1424,7 +1651,10 @@ function saveState(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }catch(e){}
-  cloudSet('staff_config', data);
+  if(saveStateCloudTimer) clearTimeout(saveStateCloudTimer);
+  saveStateCloudTimer = setTimeout(() => {
+    cloudSet('staff_config', data);
+  }, 1000);
 }
 
 async function loadSavedState(){
@@ -1441,13 +1671,37 @@ async function loadSavedState(){
 function renderStaffRows(){
   const container = document.getElementById('staffContainer');
   container.innerHTML = '';
-  staff.forEach((s, idx) => {
+
+  const hiddenCount = staff.filter(s => monthlyExcludedNames.has(s.name)).length;
+  if(hiddenCount > 0){
+    const unhideBar = document.createElement('div');
+    unhideBar.className = 'unhide-bar';
+    const text = document.createElement('span');
+    text.textContent = '🙈 ' + hiddenCount + ' người không tham gia tháng này. ';
+    const link = document.createElement('span');
+    link.className = 'unhide-link';
+    link.textContent = 'Hiện lại tất cả';
+    link.addEventListener('click', () => {
+      monthlyExcludedNames = new Set();
+      renderStaffRows();
+      refreshLiveViews();
+    });
+    unhideBar.appendChild(text);
+    unhideBar.appendChild(link);
+    container.appendChild(unhideBar);
+  }
+
+  const visible = staff
+    .map((s, idx) => ({ s, idx }))
+    .filter(({ s }) => !monthlyExcludedNames.has(s.name));
+
+  visible.forEach(({ s, idx }, displayIdx) => {
     const card = document.createElement('div');
     card.className = 'staff-card';
 
     const indexLabel = document.createElement('div');
     indexLabel.className = 'staff-index';
-    indexLabel.textContent = '#' + (idx + 1) + ' / ' + staff.length;
+    indexLabel.textContent = '#' + (displayIdx + 1) + ' / ' + visible.length;
     card.appendChild(indexLabel);
 
     const row = document.createElement('div');
@@ -1634,6 +1888,83 @@ function findAdjacentBlockOwner(block, cycleLength, year, monthIndex){
   return null;
 }
 
+let monthlyExcludedNames = new Set();
+const PARTICIPATION_SKIP_KEY = 'shift_scheduler_skip_participation_modal_v1';
+
+function getSkipParticipationModal(){
+  try{ return localStorage.getItem(PARTICIPATION_SKIP_KEY) === '1'; }catch(e){ return false; }
+}
+
+function setSkipParticipationModal(val){
+  try{ localStorage.setItem(PARTICIPATION_SKIP_KEY, val ? '1' : '0'); }catch(e){}
+}
+
+function showParticipationModal(onConfirm){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const box = document.createElement('div');
+  box.className = 'modal-box';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Xác nhận nhân sự tham gia tháng này';
+  box.appendChild(title);
+
+  const hint = document.createElement('div');
+  hint.className = 'modal-hint';
+  hint.textContent = 'Bỏ tick người nào không trực tháng này (vẫn giữ nguyên vai trò của họ cho các tháng sau).';
+  box.appendChild(hint);
+
+  const list = document.createElement('div');
+  list.className = 'modal-checklist';
+  const names = activeStaffNames();
+  const checkboxes = {};
+  names.forEach(n => {
+    const row = document.createElement('label');
+    row.className = 'modal-check-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !monthlyExcludedNames.has(n);
+    checkboxes[n] = cb;
+    row.appendChild(cb);
+    row.appendChild(document.createTextNode(' ' + n));
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+
+  const skipRow = document.createElement('label');
+  skipRow.className = 'modal-skip-row';
+  const skipCb = document.createElement('input');
+  skipCb.type = 'checkbox';
+  skipCb.checked = getSkipParticipationModal();
+  skipRow.appendChild(skipCb);
+  skipRow.appendChild(document.createTextNode(' Không hỏi lại bước này'));
+  box.appendChild(skipRow);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'modal-btn-row';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'modal-cancel-btn';
+  cancelBtn.textContent = 'Hủy';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  const confirmBtn = document.createElement('button');
+  confirmBtn.className = 'modal-confirm-btn';
+  confirmBtn.textContent = 'Xác nhận & Tạo lịch';
+  confirmBtn.addEventListener('click', () => {
+    monthlyExcludedNames = new Set(names.filter(n => !checkboxes[n].checked));
+    setSkipParticipationModal(skipCb.checked);
+    overlay.remove();
+    renderStaffRows();
+    onConfirm();
+  });
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  box.appendChild(btnRow);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
 function activeStaffNames(){
   return staff.filter(s => s.name && s.name.trim()).map(s => s.name.trim());
 }
@@ -1689,7 +2020,7 @@ function runAssignment(){
   const cycleLength = Math.max(1, parseInt(document.getElementById('cycleLength').value, 10) || 7);
   const { blocks, dayToBlock } = computeQuaHanBlocks(year, monthIndex, daysInMonth, cycleStartDow, cycleLength);
 
-  const names = activeStaff.map(s => s.name);
+  const names = activeStaff.map(s => s.name).filter(n => !monthlyExcludedNames.has(n));
   const shuffleOrder = {};
   const shuffled = [...names].sort(() => Math.random() - 0.5);
   shuffled.forEach((n, idx) => { shuffleOrder[n] = idx; });
@@ -1954,6 +2285,13 @@ function renderCalendar(state){
   savedSelect.addEventListener('change', () => {
     if(savedSelect.value) viewSavedMonth(savedSelect.value);
   });
+  const savedViewBtn = document.createElement('button');
+  savedViewBtn.className = 'saved-view-btn';
+  savedViewBtn.textContent = '👁';
+  savedViewBtn.title = 'Xem tháng đang chọn';
+  savedViewBtn.addEventListener('click', () => {
+    if(savedSelect.value) viewSavedMonth(savedSelect.value);
+  });
   const savedDelBtn = document.createElement('button');
   savedDelBtn.className = 'saved-del-btn';
   savedDelBtn.textContent = '✕';
@@ -1963,6 +2301,7 @@ function renderCalendar(state){
   });
   savedGroup.appendChild(savedLabel);
   savedGroup.appendChild(savedSelect);
+  savedGroup.appendChild(savedViewBtn);
   savedGroup.appendChild(savedDelBtn);
 
   highlightRow.appendChild(trackGroup);
@@ -1983,6 +2322,13 @@ function renderCalendar(state){
   stickyHead.appendChild(headerRow);
 
   scrollBox.appendChild(stickyHead);
+
+  if(state.alreadySavedWarning){
+    const savedWarnBox = document.createElement('div');
+    savedWarnBox.className = 'already-saved-warning';
+    savedWarnBox.textContent = state.alreadySavedWarning;
+    scrollBox.appendChild(savedWarnBox);
+  }
 
   state.weeks.forEach((week, wIdx) => {
     const block = document.createElement('div');
@@ -2321,9 +2667,9 @@ function renderStats(state){
 
   const table = document.createElement('table');
   table.className = 'stats-table';
-  table.innerHTML = '<thead><tr><th>Tên</th><th>Trực Room (ngày thường)</th><th>Trực Room (Chủ nhật)</th><th>Trực Room (ngày lễ)</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>Tên</th><th>Thường</th><th>Chủ nhật</th><th>Lễ/Tết</th><th>Quá Hạn (số ngày)</th><th>Tổng lượt trực</th></tr></thead>';
   const tbody = document.createElement('tbody');
-  state.names.forEach(n => {
+  canonicalSortNames(state.names).forEach(n => {
     const total = counts[n].truc + counts[n].sun + counts[n].holiday + counts[n].qh;
     const tr = document.createElement('tr');
     tr.innerHTML = '<td>' + n + '</td><td>' + counts[n].truc + '</td><td>' + counts[n].sun + '</td><td>' + counts[n].holiday + '</td><td>' + counts[n].qh + '</td><td><strong>' + total + '</strong></td>';
@@ -2337,6 +2683,11 @@ function renderStats(state){
 function generate(){
   const state = runAssignment();
   if(!state) return;
+  const monthKey = state.year + '-' + String(state.monthIndex + 1).padStart(2, '0');
+  if(historyByMonth[monthKey] && historyByMonth[monthKey].assignments){
+    const savedDate = historyByMonth[monthKey].savedAt ? new Date(historyByMonth[monthKey].savedAt).toLocaleString('vi-VN') : '';
+    state.alreadySavedWarning = '⚠️ Tháng ' + monthKey + ' đã có lịch được LƯU trước đó' + (savedDate ? ' (lúc ' + savedDate + ')' : '') + '. Đây là bản xem trước mới — nếu bấm "Lưu lịch" sẽ GHI ĐÈ dữ liệu đã lưu.';
+  }
   lastState = state;
   renderCalendar(state);
   renderStats(state);
@@ -2416,6 +2767,20 @@ function viewSavedMonth(monthKey){
   const entry = historyByMonth[monthKey];
   if(!entry || !entry.assignments) return;
 
+  if(entry.staffSnapshot && entry.staffSnapshot.length > 0){
+    monthlyExcludedNames = new Set();
+    staff = entry.staffSnapshot.map(s => ({
+      id:newStaffId(),
+      name:s.name || '',
+      msnv:s.msnv || '',
+      off:s.off || '',
+      canQuaHan: s.canQuaHan !== false,
+      canWeekdayTruc: s.canWeekdayTruc !== false,
+      canSundayTruc: s.canSundayTruc !== false
+    }));
+    renderStaffRows();
+  }
+
   const [yearStr, monthStr] = monthKey.split('-');
   const year = parseInt(yearStr, 10);
   const monthIndex = parseInt(monthStr, 10) - 1;
@@ -2479,18 +2844,35 @@ document.getElementById('addStaffBtn').addEventListener('click', () => {
   refreshLiveViews();
 });
 
-document.getElementById('generateBtn').addEventListener('click', generate);
-document.getElementById('defaultTemplateBtn').addEventListener('click', () => {
-  const ok = confirm('Đặt lại danh sách nhân sự về 9 người mặc định và chuyển về tháng hiện tại?\n\nDanh sách nhân sự hiện tại sẽ bị thay thế.');
+function handleGenerateClick(){
+  if(getSkipParticipationModal()){
+    monthlyExcludedNames = new Set();
+    renderStaffRows();
+    generate();
+  } else {
+    showParticipationModal(generate);
+  }
+}
+
+document.getElementById('generateBtn').addEventListener('click', handleGenerateClick);
+document.getElementById('saveAsTemplateBtn').addEventListener('click', () => {
+  const activeList = staff.filter(s => s.name && s.name.trim());
+  if(activeList.length === 0){
+    alert('Danh sách nhân sự đang trống, không có gì để lưu làm mẫu.');
+    return;
+  }
+  const ok = confirm('Lưu danh sách nhân sự hiện tại (' + activeList.length + ' người) làm mẫu mặc định mới?\n\nMẫu này sẽ được dùng làm danh sách khởi tạo cho lần đầu mở app trên trình duyệt/máy khác.');
   if(!ok) return;
-  staff = defaultStaff();
-  renderStaffRows();
-  const now = new Date();
-  document.getElementById('monthInput').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-  document.getElementById('cycleStartDow').value = '2';
-  document.getElementById('cycleLength').value = '7';
-  saveState();
-  generate();
+  const list = activeList.map(s => ({
+    name:s.name.trim(),
+    msnv:s.msnv || '',
+    canQuaHan:s.canQuaHan,
+    canWeekdayTruc:s.canWeekdayTruc,
+    canSundayTruc:s.canSundayTruc
+  }));
+  customDefaultTemplate = list;
+  saveCustomDefaultTemplate(list);
+  alert('Đã lưu mẫu mặc định mới (' + list.length + ' người).');
 });
 document.getElementById('reshuffleBtn').addEventListener('click', generate);
 document.getElementById('saveMonthBtn').addEventListener('click', confirmAndSaveMonth);
@@ -2510,6 +2892,10 @@ function applyDarkMode(isDark){
   try{ localStorage.setItem(DARK_MODE_KEY, isDark ? '1' : '0'); }catch(e){}
 }
 
+document.getElementById('homeTitle').addEventListener('click', () => {
+  location.reload();
+});
+
 document.getElementById('darkModeToggle').addEventListener('click', () => {
   const isDark = !document.body.classList.contains('dark');
   applyDarkMode(isDark);
@@ -2521,6 +2907,7 @@ applyDarkMode(savedDarkMode);
 
 async function initApp(){
   updateCloudStatusBadge();
+  customDefaultTemplate = await loadCustomDefaultTemplate();
   historyByMonth = await loadHistory();
   renderSavedMonthsList();
   const saved = await loadSavedState();
@@ -2531,6 +2918,7 @@ async function initApp(){
     staff = saved.staff.map(s => ({
       id:newStaffId(),
       name:s.name || '',
+      msnv:s.msnv || '',
       off:s.off || '',
       canQuaHan: s.canQuaHan !== false,
       canWeekdayTruc: s.canWeekdayTruc !== false,
