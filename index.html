@@ -565,6 +565,11 @@ body.dark .grand-total-row{
 .week-header .cell:first-child{background:transparent;}
 .calendar-scroll-box{
   position:relative;
+  overflow-x:auto;
+  max-width:100%;
+}
+.calendar-header-row, .date-row, .role-row{
+  min-width:620px;
 }
 .zodiac-watermark{
   position:absolute;
@@ -897,6 +902,7 @@ select.edit-select{
 }
 .calendar-column{
   position:relative;
+  min-width:0;
 }
 #statsArea{
   position:absolute;
